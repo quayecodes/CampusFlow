@@ -81,6 +81,23 @@ export default async function LecturerDashboardPage() {
               </div>
               <span className="text-xl text-teal-600">→</span>
             </Link>
+
+            <Link
+              href="/lecturer/grades"
+              className="flex items-center justify-between rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-white p-5 shadow-sm transition hover:border-indigo-400 hover:shadow sm:col-span-2"
+            >
+              <div>
+                <h3 className="font-bold text-indigo-900">
+                  Final Grade Entry &amp; Submission
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Enter student final scores and submit draft grade sheets to
+                  the Department Administrator for publication approval (FR11,
+                  FR14).
+                </p>
+              </div>
+              <span className="text-xl text-indigo-600">→</span>
+            </Link>
           </div>
         </div>
       </div>

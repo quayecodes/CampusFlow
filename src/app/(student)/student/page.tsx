@@ -93,6 +93,22 @@ export default async function StudentDashboardPage() {
               </div>
               <span className="text-xl text-purple-600">→</span>
             </Link>
+
+            <Link
+              href="/student/results"
+              className="flex items-center justify-between rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-5 shadow-sm transition hover:border-emerald-400 hover:shadow"
+            >
+              <div>
+                <h3 className="font-bold text-emerald-900">
+                  Results &amp; GPA
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  View published semester results, letter grades, earned
+                  credits, and official computed GPA (FR13).
+                </p>
+              </div>
+              <span className="text-xl text-emerald-600">→</span>
+            </Link>
           </div>
         </div>
       </div>
