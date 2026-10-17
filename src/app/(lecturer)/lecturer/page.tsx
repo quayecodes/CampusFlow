@@ -84,7 +84,7 @@ export default async function LecturerDashboardPage() {
 
             <Link
               href="/lecturer/grades"
-              className="flex items-center justify-between rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-white p-5 shadow-sm transition hover:border-indigo-400 hover:shadow sm:col-span-2"
+              className="flex items-center justify-between rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-white p-5 shadow-sm transition hover:border-indigo-400 hover:shadow"
             >
               <div>
                 <h3 className="font-bold text-indigo-900">
@@ -97,6 +97,22 @@ export default async function LecturerDashboardPage() {
                 </p>
               </div>
               <span className="text-xl text-indigo-600">→</span>
+            </Link>
+
+            <Link
+              href="/lecturer/announcements"
+              className="flex items-center justify-between rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm transition hover:border-blue-400 hover:shadow"
+            >
+              <div>
+                <h3 className="font-bold text-blue-900">
+                  Course Announcements
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Publish notices to your enrolled classes (FR15) and monitor
+                  department and university bulletins (FR18).
+                </p>
+              </div>
+              <span className="text-xl text-blue-600">→</span>
             </Link>
           </div>
         </div>

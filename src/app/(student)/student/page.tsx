@@ -109,6 +109,22 @@ export default async function StudentDashboardPage() {
               </div>
               <span className="text-xl text-emerald-600">→</span>
             </Link>
+
+            <Link
+              href="/student/announcements"
+              className="flex items-center justify-between rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-white p-5 shadow-sm transition hover:border-amber-400 hover:shadow sm:col-span-2"
+            >
+              <div>
+                <h3 className="font-bold text-amber-900">
+                  Campus Announcements
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Unified bulletin feed for university broadcasts, department
+                  notices, and course updates from your instructors (FR18).
+                </p>
+              </div>
+              <span className="text-xl text-amber-600">→</span>
+            </Link>
           </div>
         </div>
       </div>

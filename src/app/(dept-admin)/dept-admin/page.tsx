@@ -63,6 +63,22 @@ export default async function DeptAdminDashboardPage() {
               </div>
               <span className="text-xl text-indigo-600">→</span>
             </Link>
+
+            <Link
+              href="/dept-admin/announcements"
+              className="flex items-center justify-between rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-white p-5 shadow-sm transition hover:border-amber-400 hover:shadow"
+            >
+              <div>
+                <h3 className="font-bold text-amber-900">
+                  Department Announcements
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Publish department broadcasts and faculty circulars (FR16),
+                  and review campus-wide notifications (FR18).
+                </p>
+              </div>
+              <span className="text-xl text-amber-600">→</span>
+            </Link>
           </div>
         </div>
       </div>
