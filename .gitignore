@@ -34,3 +34,6 @@ prisma/*.db
 
 #Context 
 context.md
+
+#Local Dev Auth
+.env.password
