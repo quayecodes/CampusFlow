@@ -48,6 +48,17 @@ export default function DeptAdminGradesPage() {
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
 
+  // Close audit modal on ESC
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && activeCourseAudit) {
+        setActiveCourseAudit(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeCourseAudit]);
+
   const loadQueue = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -103,14 +114,14 @@ export default function DeptAdminGradesPage() {
         } else {
           setNotification({
             type: "error",
-            message: json.error?.message || "Failed to approve grades.",
+            message: json.error?.message || "Failed to publish grades.",
           });
         }
       } catch (err) {
         console.error("Approve error:", err);
         setNotification({
           type: "error",
-          message: "Network error approving grades.",
+          message: "Network error during grade publication.",
         });
       }
     });
@@ -119,14 +130,14 @@ export default function DeptAdminGradesPage() {
   // Open Audit Trail Modal
   const openAuditLogs = async (courseId: string, courseTitle: string) => {
     setActiveCourseAudit({ courseId, courseTitle });
+    setIsLoadingAudit(true);
     try {
-      setIsLoadingAudit(true);
       const res = await fetch(
         `/api/v1/grades/dept-admin/audit?courseId=${courseId}`
       );
       const json = await res.json();
-      if (res.ok && json.data?.logs) {
-        setAuditLogs(json.data.logs);
+      if (res.ok && json.data?.auditLogs) {
+        setAuditLogs(json.data.auditLogs);
       } else {
         setAuditLogs([]);
       }
@@ -139,21 +150,29 @@ export default function DeptAdminGradesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <div className="py-8 sm:py-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Navigation & Header */}
         <div className="mb-6">
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Link href="/dept-admin" className="hover:text-gray-700">
+          <nav
+            className="mb-1 flex items-center gap-1.5 text-xs text-slate-600"
+            aria-label="Breadcrumb"
+          >
+            <Link
+              href="/dept-admin"
+              className="font-medium hover:text-amber-700 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
+            >
               Department Portal
             </Link>
             <span>/</span>
-            <span className="font-semibold text-gray-800">Grade Approvals</span>
-          </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+            <span className="font-semibold text-slate-900" aria-current="page">
+              Grade Approvals
+            </span>
+          </nav>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
             Department Grade Approval Queue
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="mt-1 text-xs text-slate-600">
             Review submitted course grades, formally publish final results to
             student transcripts, and inspect the academic integrity audit trail
             (FR12, FR14).
@@ -163,7 +182,9 @@ export default function DeptAdminGradesPage() {
         {/* Feedback Alert Banner */}
         {notification && (
           <div
-            className={`mb-6 flex items-center justify-between rounded-lg border p-4 text-sm ${
+            role="alert"
+            aria-live="polite"
+            className={`mb-6 flex items-center justify-between rounded-xl border p-4 text-xs font-semibold ${
               notification.type === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                 : "border-red-200 bg-red-50 text-red-800"
@@ -172,7 +193,8 @@ export default function DeptAdminGradesPage() {
             <span>{notification.message}</span>
             <button
               onClick={() => setNotification(null)}
-              className="text-xs font-semibold underline hover:opacity-80"
+              aria-label="Dismiss message"
+              className="rounded px-1.5 py-0.5 underline hover:opacity-80 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
             >
               Dismiss
             </button>
@@ -180,62 +202,72 @@ export default function DeptAdminGradesPage() {
         )}
 
         {/* Queue Table */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="border-b border-gray-200 bg-gray-50/50 p-4">
-            <h2 className="font-bold text-gray-800">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
+          <div className="border-b border-slate-200 bg-slate-50/70 p-4">
+            <h2 className="text-sm font-bold text-slate-900">
               Department Course Approval Queue
             </h2>
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-sm text-gray-500">
+            <div
+              className="p-12 text-center text-xs text-slate-600"
+              aria-busy="true"
+            >
               <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
               <p className="mt-2">Loading grade approval queue...</p>
             </div>
           ) : queue.length === 0 ? (
-            <div className="p-12 text-center text-sm text-gray-500">
-              <p className="font-medium text-gray-700">No courses found</p>
-              <p className="mt-1 text-xs">
+            <div className="p-12 text-center text-xs text-slate-600">
+              <p className="font-bold text-slate-800">No courses found</p>
+              <p className="mt-1">
                 No active courses are assigned to this department.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
-                <thead className="bg-gray-50 text-xs font-semibold tracking-wider text-gray-600 uppercase">
+              <table
+                className="min-w-full divide-y divide-slate-200 text-left text-sm"
+                aria-label="Department course approval queue table"
+              >
+                <caption className="sr-only">
+                  Course grade review queue with actions for approving and
+                  publishing grades
+                </caption>
+                <thead className="bg-slate-50 text-[11px] font-bold tracking-wider text-slate-700 uppercase">
                   <tr>
-                    <th scope="col" className="px-6 py-3">
+                    <th scope="col" className="px-6 py-3.5">
                       Course &amp; Instructor
                     </th>
-                    <th scope="col" className="px-6 py-3">
+                    <th scope="col" className="px-6 py-3.5">
                       Enrolled / Grades
                     </th>
-                    <th scope="col" className="px-6 py-3">
+                    <th scope="col" className="px-6 py-3.5">
                       Queue Status
                     </th>
-                    <th scope="col" className="px-6 py-3 text-right">
+                    <th scope="col" className="px-6 py-3.5 text-right">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
+                <tbody className="divide-y divide-slate-200 bg-white text-xs">
                   {queue.map((item) => (
-                    <tr key={item.courseId} className="hover:bg-gray-50">
+                    <tr key={item.courseId} className="hover:bg-slate-50">
                       <td className="px-6 py-4">
-                        <div className="font-bold text-gray-900">
+                        <div className="font-bold text-slate-900">
                           {item.courseTitle}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-slate-600">
                           Lecturer: {item.lecturerName} • {item.creditHours}{" "}
                           Credits
                         </div>
                       </td>
 
                       <td className="px-6 py-4">
-                        <div className="text-sm font-semibold text-gray-800">
+                        <div className="font-semibold text-slate-900">
                           {item.gradesEntered} / {item.totalEnrolled} grades
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-slate-600">
                           {item.draftCount} draft, {item.publishedCount}{" "}
                           published
                         </div>
@@ -243,43 +275,47 @@ export default function DeptAdminGradesPage() {
 
                       <td className="px-6 py-4">
                         {item.queueStatus === "PUBLISHED" ? (
-                          <span className="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                          <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
                             ✓ Published
                           </span>
                         ) : item.queueStatus === "READY_FOR_APPROVAL" ? (
-                          <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
-                            ⏳ Ready for Approval
+                          <span className="inline-flex rounded-full border border-amber-200 bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                            Ready for Review ({item.draftCount} draft)
                           </span>
                         ) : (
-                          <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                          <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
                             No Grades Submitted
                           </span>
                         )}
                       </td>
 
-                      <td className="space-x-2 px-6 py-4 text-right">
-                        {item.draftCount > 0 && (
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end space-x-2">
                           <button
                             type="button"
-                            disabled={isApproving}
                             onClick={() =>
-                              handleApprove(item.courseId, item.courseTitle)
+                              openAuditLogs(item.courseId, item.courseTitle)
                             }
-                            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-50"
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
                           >
-                            Approve &amp; Publish (FR12)
+                            Audit Log (FR14)
                           </button>
-                        )}
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openAuditLogs(item.courseId, item.courseTitle)
-                          }
-                          className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
-                        >
-                          Audit Trail (FR14)
-                        </button>
+                          {item.queueStatus === "READY_FOR_APPROVAL" && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleApprove(item.courseId, item.courseTitle)
+                              }
+                              disabled={isApproving}
+                              className="rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-50"
+                            >
+                              {isApproving
+                                ? "Publishing..."
+                                : "Approve & Publish"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -289,22 +325,32 @@ export default function DeptAdminGradesPage() {
           )}
         </div>
 
-        {/* MODAL: Academic Integrity Audit Trail (FR14) */}
+        {/* MODAL: Audit Trail Viewer (FR14) */}
         {activeCourseAudit && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-              <div className="flex items-center justify-between border-b bg-gray-50 px-6 py-4">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-audit-title"
+          >
+            <div className="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-6 py-4">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3
+                    id="modal-audit-title"
+                    className="text-base font-bold text-slate-900"
+                  >
                     Grade Modification Audit Trail (FR14)
                   </h3>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-600">
                     Course: {activeCourseAudit.courseTitle}
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setActiveCourseAudit(null)}
-                  className="rounded-md p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                  aria-label="Close audit log dialog"
+                  className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-200 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
                 >
                   ✕
                 </button>
@@ -312,51 +358,57 @@ export default function DeptAdminGradesPage() {
 
               <div className="flex-1 overflow-y-auto p-6">
                 {isLoadingAudit ? (
-                  <div className="p-8 text-center text-sm text-gray-500">
+                  <div
+                    className="p-8 text-center text-xs text-slate-600"
+                    aria-busy="true"
+                  >
                     <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
                     <p className="mt-2">Loading audit trail records...</p>
                   </div>
                 ) : auditLogs.length === 0 ? (
-                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-8 text-center text-xs text-gray-500">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center text-xs text-slate-600">
                     No post-publication grade modifications have been recorded
                     for this course. All grades match the initial published
                     values.
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-200">
+                  <div className="divide-y divide-slate-200">
                     {auditLogs.map((log) => (
                       <div
                         key={log.id}
-                        className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
+                        className="flex flex-col gap-2 py-3 text-xs sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div>
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="font-bold text-slate-900">
                             {log.studentName}
                           </span>
-                          <span className="ml-2 font-mono text-xs text-gray-500">
+                          <span className="ml-2 font-mono text-slate-600">
                             ({log.studentEmail})
                           </span>
-                          <div className="mt-1 text-xs text-gray-600">
+                          <div className="mt-0.5 text-slate-600">
                             Changed by:{" "}
-                            <strong>
+                            <strong className="text-slate-800">
                               {log.changedByName} ({log.changedByRole})
                             </strong>
                           </div>
                         </div>
 
                         <div className="text-right">
-                          <div className="flex items-center space-x-2 text-xs sm:justify-end">
-                            <span className="rounded bg-red-50 px-2 py-0.5 font-mono text-red-700">
+                          <div className="flex items-center space-x-2 font-semibold sm:justify-end">
+                            <span className="rounded border border-red-200 bg-red-50 px-2 py-0.5 font-mono text-red-700">
                               Old: {log.oldScore}%
                             </span>
                             <span>→</span>
-                            <span className="rounded bg-emerald-50 px-2 py-0.5 font-mono font-bold text-emerald-700">
+                            <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono font-bold text-emerald-800">
                               New: {log.newScore}%
                             </span>
                           </div>
-                          <span className="mt-1 block font-mono text-[11px] text-gray-400">
+                          <time
+                            dateTime={log.changedAt}
+                            className="mt-1 block font-mono text-[11px] text-slate-600"
+                          >
                             {new Date(log.changedAt).toLocaleString()}
-                          </span>
+                          </time>
                         </div>
                       </div>
                     ))}
@@ -364,11 +416,11 @@ export default function DeptAdminGradesPage() {
                 )}
               </div>
 
-              <div className="border-t bg-gray-50 px-6 py-3 text-right">
+              <div className="border-t border-slate-100 bg-slate-50 px-6 py-3 text-right">
                 <button
                   type="button"
                   onClick={() => setActiveCourseAudit(null)}
-                  className="rounded-lg bg-gray-200 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+                  className="rounded-lg bg-slate-200 px-4 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-300 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
                 >
                   Close Audit Log
                 </button>

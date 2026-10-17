@@ -59,16 +59,17 @@ export default function StudentCoursesPage() {
 
       if (coursesRes.ok && coursesJson.data?.courses) {
         setCourses(coursesJson.data.courses);
-      }
-      if (enrollmentsRes.ok && enrollmentsJson.data?.enrollments) {
-        setEnrollments(
-          enrollmentsJson.data.enrollments.filter(
-            (e: Enrollment) => e.status === "ENROLLED"
-          )
+      } else {
+        setErrorMessage(
+          coursesJson.error?.message || "Failed to load course list."
         );
       }
+
+      if (enrollmentsRes.ok && enrollmentsJson.data?.enrollments) {
+        setEnrollments(enrollmentsJson.data.enrollments);
+      }
     } catch {
-      setErrorMessage("Failed to load courses. Please check your connection.");
+      setErrorMessage("Network error while loading registration data.");
     } finally {
       setIsLoading(false);
     }
@@ -95,11 +96,11 @@ export default function StudentCoursesPage() {
       if (!res.ok) {
         setErrorMessage(json.error?.message || "Enrollment failed.");
       } else {
-        setSuccessMessage("Successfully registered for course!");
+        setSuccessMessage("Successfully enrolled in course!");
         await fetchData();
       }
     } catch {
-      setErrorMessage("Network error during enrollment.");
+      setErrorMessage("Network error while enrolling.");
     } finally {
       setActionLoadingId(null);
     }
@@ -141,35 +142,49 @@ export default function StudentCoursesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="py-8 sm:py-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Navigation & Header */}
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2">
+            <nav
+              className="mb-1 flex items-center gap-1.5 text-xs text-slate-600"
+              aria-label="Breadcrumb"
+            >
               <Link
                 href="/student"
-                className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                className="font-medium hover:text-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
               >
-                ← Back to Student Portal
+                Student Portal
               </Link>
-            </div>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              <span>/</span>
+              <span
+                className="font-semibold text-slate-900"
+                aria-current="page"
+              >
+                Course Registration
+              </span>
+            </nav>
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               Course Registration
             </h1>
-            <p className="text-sm text-gray-500">
-              Semester:{" "}
-              <span className="font-semibold text-gray-700">{semester}</span>
+            <p className="mt-1 text-xs text-slate-600">
+              Active Registration Window • Semester:{" "}
+              <strong className="font-semibold text-slate-900">
+                {semester}
+              </strong>
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-right shadow-sm">
-              <p className="text-xs text-gray-500">Registered Credits</p>
-              <p className="text-lg font-bold text-indigo-600">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-right shadow-xs">
+              <p className="text-[11px] font-medium text-slate-600">
+                Registered Load
+              </p>
+              <p className="text-base font-bold text-indigo-600">
                 {totalCredits}{" "}
-                <span className="text-xs font-normal text-gray-500">
-                  Credits
+                <span className="text-xs font-normal text-slate-600">
+                  / 18 Credits Max
                 </span>
               </p>
             </div>
@@ -180,13 +195,16 @@ export default function StudentCoursesPage() {
         {errorMessage && (
           <div
             role="alert"
-            className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+            aria-live="polite"
+            className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-medium text-red-800"
           >
             <div className="flex items-center justify-between">
               <span>{errorMessage}</span>
               <button
+                type="button"
                 onClick={() => setErrorMessage(null)}
-                className="text-red-500 hover:text-red-700"
+                aria-label="Dismiss error notice"
+                className="rounded p-1 text-red-600 hover:text-red-800 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none"
               >
                 ✕
               </button>
@@ -197,13 +215,16 @@ export default function StudentCoursesPage() {
         {successMessage && (
           <div
             role="status"
-            className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800"
+            aria-live="polite"
+            className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-medium text-emerald-800"
           >
             <div className="flex items-center justify-between">
               <span>{successMessage}</span>
               <button
+                type="button"
                 onClick={() => setSuccessMessage(null)}
-                className="text-green-500 hover:text-green-700"
+                aria-label="Dismiss success notice"
+                className="rounded p-1 text-emerald-600 hover:text-emerald-800 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
               >
                 ✕
               </button>
@@ -212,24 +233,34 @@ export default function StudentCoursesPage() {
         )}
 
         {/* View Tabs */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex gap-6">
+        <div className="mb-6 border-b border-slate-200">
+          <nav
+            className="-mb-px flex gap-6"
+            role="tablist"
+            aria-label="Course registration views"
+          >
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "available"}
               onClick={() => setActiveTab("available")}
-              className={`border-b-2 pb-3 text-sm font-medium transition ${
+              className={`border-b-2 pb-3 text-xs font-semibold transition focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none sm:text-sm ${
                 activeTab === "available"
                   ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                  : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"
               }`}
             >
               Available Courses ({courses.length})
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "my-courses"}
               onClick={() => setActiveTab("my-courses")}
-              className={`border-b-2 pb-3 text-sm font-medium transition ${
+              className={`border-b-2 pb-3 text-xs font-semibold transition focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none sm:text-sm ${
                 activeTab === "my-courses"
                   ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                  : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"
               }`}
             >
               My Registered Courses ({enrollments.length})
@@ -239,17 +270,21 @@ export default function StudentCoursesPage() {
 
         {/* Loading State */}
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            aria-busy="true"
+            aria-label="Loading course data"
+          >
             {[1, 2, 3].map((n) => (
               <div
                 key={n}
-                className="h-56 animate-pulse rounded-xl border border-gray-200 bg-white p-5"
+                className="h-56 animate-pulse rounded-xl border border-slate-200 bg-white p-5"
               >
-                <div className="h-4 w-3/4 rounded bg-gray-200" />
-                <div className="mt-3 h-3 w-1/2 rounded bg-gray-100" />
+                <div className="h-4 w-3/4 rounded bg-slate-200" />
+                <div className="mt-3 h-3 w-1/2 rounded bg-slate-100" />
                 <div className="mt-8 space-y-2">
-                  <div className="h-3 w-full rounded bg-gray-100" />
-                  <div className="h-3 w-5/6 rounded bg-gray-100" />
+                  <div className="h-3 w-full rounded bg-slate-100" />
+                  <div className="h-3 w-5/6 rounded bg-slate-100" />
                 </div>
               </div>
             ))}
@@ -257,8 +292,8 @@ export default function StudentCoursesPage() {
         ) : activeTab === "available" ? (
           /* Available Courses Grid */
           courses.length === 0 ? (
-            <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-              <p className="text-gray-500">
+            <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
+              <p className="text-xs text-slate-600">
                 No courses available for this semester.
               </p>
             </div>
@@ -276,55 +311,73 @@ export default function StudentCoursesPage() {
           )
         ) : /* My Registered Courses Table */
         enrollments.length === 0 ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-            <p className="text-gray-500">
+          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
+            <p className="text-xs text-slate-600">
               You have not registered for any courses this semester.
             </p>
             <button
+              type="button"
               onClick={() => setActiveTab("available")}
-              className="mt-3 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+              className="mt-3 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             >
               Browse available courses →
             </button>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
-                <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+              <table
+                className="min-w-full divide-y divide-slate-200 text-left text-sm"
+                aria-label="Registered courses table"
+              >
+                <caption className="sr-only">
+                  List of courses you are actively enrolled in this semester
+                </caption>
+                <thead className="bg-slate-50 text-[11px] font-bold tracking-wider text-slate-700 uppercase">
                   <tr>
-                    <th className="px-6 py-3">Course</th>
-                    <th className="px-6 py-3">Instructor</th>
-                    <th className="px-6 py-3">Credits</th>
-                    <th className="px-6 py-3">Enrolled On</th>
-                    <th className="px-6 py-3 text-right">Actions</th>
+                    <th scope="col" className="px-6 py-3.5">
+                      Course
+                    </th>
+                    <th scope="col" className="px-6 py-3.5">
+                      Instructor
+                    </th>
+                    <th scope="col" className="px-6 py-3.5">
+                      Credits
+                    </th>
+                    <th scope="col" className="px-6 py-3.5">
+                      Enrolled On
+                    </th>
+                    <th scope="col" className="px-6 py-3.5 text-right">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200 text-xs">
                   {enrollments.map((enr) => (
-                    <tr key={enr.id} className="transition hover:bg-gray-50">
+                    <tr key={enr.id} className="transition hover:bg-slate-50">
                       <td className="px-6 py-4">
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-bold text-slate-900">
                           {enr.course.title}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-[11px] text-slate-600">
                           {enr.course.department?.name}
                         </p>
                       </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {enr.course.lecturer?.fullName || "Unassigned"}
+                      <td className="px-6 py-4 text-slate-700">
+                        {enr.course.lecturer?.fullName || "Faculty Member"}
                       </td>
-                      <td className="px-6 py-4 font-medium text-gray-900">
+                      <td className="px-6 py-4 font-semibold text-slate-900">
                         {enr.course.creditHours}
                       </td>
-                      <td className="px-6 py-4 text-xs text-gray-500">
+                      <td className="px-6 py-4 text-slate-600">
                         {new Date(enr.enrolledAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
+                          type="button"
                           onClick={() => handleDrop(enr.id, enr.course.title)}
                           disabled={actionLoadingId === enr.id}
-                          className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+                          className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none disabled:opacity-50"
                         >
                           {actionLoadingId === enr.id
                             ? "Dropping..."

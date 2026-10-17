@@ -87,6 +87,17 @@ export function AnnouncementFeed({
     loadFeed();
   }, [loadFeed]);
 
+  // Handle ESC key for modal dismissal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showPostModal) {
+        setShowPostModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showPostModal]);
+
   // Set default scopeId on post scope change
   useEffect(() => {
     if (postScope === AnnouncementScope.COURSE && courses.length > 0) {
@@ -120,8 +131,8 @@ export function AnnouncementFeed({
           body: JSON.stringify({
             scope: postScope,
             scopeId: postScopeId || undefined,
-            title: postTitle,
-            body: postBody,
+            title: postTitle.trim(),
+            body: postBody.trim(),
           }),
         });
 
@@ -199,7 +210,9 @@ export function AnnouncementFeed({
       {/* Feedback Banner */}
       {notification && (
         <div
-          className={`mb-6 flex items-center justify-between rounded-lg border p-4 text-sm ${
+          role="alert"
+          aria-live="polite"
+          className={`mb-6 flex items-center justify-between rounded-xl border p-4 text-xs font-semibold ${
             notification.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : "border-red-200 bg-red-50 text-red-800"
@@ -208,7 +221,8 @@ export function AnnouncementFeed({
           <span>{notification.message}</span>
           <button
             onClick={() => setNotification(null)}
-            className="text-xs font-semibold underline hover:opacity-80"
+            aria-label="Dismiss feedback message"
+            className="rounded px-1.5 py-0.5 underline hover:opacity-80 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
           >
             Dismiss
           </button>
@@ -218,7 +232,11 @@ export function AnnouncementFeed({
       {/* Toolbar: Scope Tabs & Post Button */}
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         {/* Scope Filter Tabs */}
-        <div className="flex flex-wrap gap-2">
+        <div
+          className="flex flex-wrap gap-2"
+          role="tablist"
+          aria-label="Filter announcements by scope"
+        >
           {(
             [
               { key: "ALL", label: "All Updates" },
@@ -230,11 +248,13 @@ export function AnnouncementFeed({
             <button
               key={tab.key}
               type="button"
+              role="tab"
+              aria-selected={activeTab === tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none ${
                 activeTab === tab.key
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  ? "bg-indigo-600 text-white shadow-xs"
+                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >
               {tab.label}
@@ -242,21 +262,27 @@ export function AnnouncementFeed({
           ))}
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           {/* Search Filter */}
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search announcements..."
-            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none"
-          />
+          <div className="relative">
+            <label htmlFor="feed-search" className="sr-only">
+              Search announcements
+            </label>
+            <input
+              id="feed-search"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search announcements..."
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 shadow-xs placeholder:text-slate-600 focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none sm:w-56"
+            />
+          </div>
 
           {canPost && (
             <button
               type="button"
               onClick={() => setShowPostModal(true)}
-              className="inline-flex items-center rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700"
+              className="inline-flex items-center rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               + Post Announcement
             </button>
@@ -266,23 +292,27 @@ export function AnnouncementFeed({
 
       {/* Announcements Stream */}
       {isLoading ? (
-        <div className="space-y-4">
+        <div
+          className="space-y-4"
+          aria-busy="true"
+          aria-label="Loading announcements"
+        >
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-32 animate-pulse rounded-xl border border-gray-200 bg-white"
+              className="h-32 animate-pulse rounded-xl border border-slate-200 bg-white"
             />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-2xl text-blue-600">
+        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-xs">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-2xl text-indigo-600">
             📢
           </div>
-          <h3 className="mt-3 text-base font-bold text-gray-900">
+          <h3 className="mt-3 text-base font-bold text-slate-900">
             No announcements found
           </h3>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-slate-600">
             There are no announcements matching your current scope filter.
           </p>
         </div>
@@ -306,17 +336,27 @@ export function AnnouncementFeed({
         </div>
       )}
 
-      {/* Post Announcement Modal */}
+      {/* Post Announcement Modal Dialog */}
       {showPostModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-            <div className="flex items-center justify-between border-b pb-3">
-              <h3 className="text-lg font-bold text-gray-900">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-announcement-title"
+        >
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3
+                id="modal-announcement-title"
+                className="text-lg font-bold text-slate-900"
+              >
                 Post New Announcement
               </h3>
               <button
+                type="button"
                 onClick={() => setShowPostModal(false)}
-                className="text-lg text-gray-400 hover:text-gray-600"
+                aria-label="Close dialog"
+                className="rounded-lg p-1 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
               >
                 ✕
               </button>
@@ -325,15 +365,19 @@ export function AnnouncementFeed({
             <form onSubmit={handlePostAnnouncement} className="mt-4 space-y-4">
               {/* Scope Selection */}
               <div>
-                <label className="block text-xs font-bold tracking-wider text-gray-700 uppercase">
+                <label
+                  htmlFor="post-scope"
+                  className="block text-xs font-bold tracking-wider text-slate-700 uppercase"
+                >
                   Target Scope *
                 </label>
                 <select
+                  id="post-scope"
                   value={postScope}
                   onChange={(e) =>
                     setPostScope(e.target.value as AnnouncementScope)
                   }
-                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                 >
                   {currentUserRole === Role.UNI_ADMIN && (
                     <option value={AnnouncementScope.UNIVERSITY}>
@@ -355,14 +399,18 @@ export function AnnouncementFeed({
               {/* Course Selector (if Course Scope) */}
               {postScope === AnnouncementScope.COURSE && (
                 <div>
-                  <label className="block text-xs font-bold tracking-wider text-gray-700 uppercase">
+                  <label
+                    htmlFor="post-course"
+                    className="block text-xs font-bold tracking-wider text-slate-700 uppercase"
+                  >
                     Select Course *
                   </label>
                   <select
+                    id="post-course"
                     value={postScopeId}
                     onChange={(e) => setPostScopeId(e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none"
+                    className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                   >
                     {courses.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -375,46 +423,54 @@ export function AnnouncementFeed({
 
               {/* Title Input */}
               <div>
-                <label className="block text-xs font-bold tracking-wider text-gray-700 uppercase">
+                <label
+                  htmlFor="post-title"
+                  className="block text-xs font-bold tracking-wider text-slate-700 uppercase"
+                >
                   Announcement Title *
                 </label>
                 <input
+                  id="post-title"
                   type="text"
                   value={postTitle}
                   onChange={(e) => setPostTitle(e.target.value)}
                   placeholder="e.g. Midterm Examination Schedule Released"
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs placeholder:text-slate-600 focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                 />
               </div>
 
               {/* Body Textarea */}
               <div>
-                <label className="block text-xs font-bold tracking-wider text-gray-700 uppercase">
+                <label
+                  htmlFor="post-body"
+                  className="block text-xs font-bold tracking-wider text-slate-700 uppercase"
+                >
                   Message Content *
                 </label>
                 <textarea
+                  id="post-body"
                   rows={4}
                   value={postBody}
                   onChange={(e) => setPostBody(e.target.value)}
                   placeholder="Type your announcement details..."
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs placeholder:text-slate-600 focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                 />
               </div>
 
-              <div className="mt-6 flex justify-end space-x-3 border-t pt-4">
+              <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowPostModal(false)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPosting}
-                  className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+                  className="rounded-lg bg-indigo-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-50"
                 >
                   {isPosting ? "Posting..." : "Publish Announcement"}
                 </button>

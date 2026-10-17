@@ -46,8 +46,8 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: formData.fullName,
-          email: formData.email,
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim().toLowerCase(),
           password: formData.password,
           role: formData.role,
         }),
@@ -76,22 +76,54 @@ export default function RegisterPage() {
     }
   };
 
+  const hasLength = formData.password.length >= 8;
+  const hasUpper = /[A-Z]/.test(formData.password);
+  const hasLower = /[a-z]/.test(formData.password);
+  const hasNumber = /[0-9]/.test(formData.password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(formData.password);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-md">
-        <div>
-          <h1 className="text-center text-3xl font-extrabold tracking-tight text-gray-900">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-lg focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+            aria-label="Return to CampusFlow homepage"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-5.25 6.557c-.502 0-.962-.06-1.396-.174"
+                />
+              </svg>
+            </div>
+            <span className="text-xl font-extrabold tracking-tight text-slate-900">
+              CampusFlow
+            </span>
+          </Link>
+          <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
             Create an Account
           </h1>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Join CampusFlow as a student or university member
+          <p className="mt-1 text-xs text-slate-600">
+            Enroll in CampusFlow to manage your academic profile
           </p>
         </div>
 
         {errors.length > 0 && (
           <div
             role="alert"
-            className="space-y-1 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+            aria-live="polite"
+            className="space-y-1 rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-800"
           >
             {errors.map((err, idx) => (
               <p key={idx}>• {err}</p>
@@ -102,17 +134,18 @@ export default function RegisterPage() {
         {successMessage && (
           <div
             role="status"
-            className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-700"
+            aria-live="polite"
+            className="rounded-lg border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-800"
           >
             {successMessage}
           </div>
         )}
 
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label
               htmlFor="fullName"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-xs font-semibold text-slate-700"
             >
               Full Name
             </label>
@@ -123,15 +156,15 @@ export default function RegisterPage() {
               required
               value={formData.fullName}
               onChange={handleChange}
-              placeholder="Jane Doe"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+              placeholder="e.g. Jane Mensah"
+              className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm text-slate-900 shadow-xs placeholder:text-slate-600 focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             />
           </div>
 
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-xs font-semibold text-slate-700"
             >
               Institutional Email
             </label>
@@ -143,24 +176,24 @@ export default function RegisterPage() {
               required
               value={formData.email}
               onChange={handleChange}
-              placeholder="jane.doe@university.edu"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+              placeholder="e.g. j.mensah@campusflow.edu"
+              className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm text-slate-900 shadow-xs placeholder:text-slate-600 focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             />
           </div>
 
           <div>
             <label
               htmlFor="role"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-xs font-semibold text-slate-700"
             >
-              Account Role
+              Account Persona
             </label>
             <select
               id="role"
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+              className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm text-slate-900 shadow-xs focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             >
               <option value="STUDENT">Student</option>
               <option value="LECTURER">Lecturer</option>
@@ -172,7 +205,7 @@ export default function RegisterPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-xs font-semibold text-slate-700"
             >
               Password
             </label>
@@ -184,15 +217,34 @@ export default function RegisterPage() {
               required
               value={formData.password}
               onChange={handleChange}
-              placeholder="Min 8 chars, uppercase, lowercase, number, symbol"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+              placeholder="Enter strong password"
+              className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm text-slate-900 shadow-xs placeholder:text-slate-600 focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             />
+            {/* Live Password Checklist */}
+            <div className="mt-2 grid grid-cols-2 gap-1 text-[11px] text-slate-600">
+              <span className={hasLength ? "font-medium text-emerald-700" : ""}>
+                {hasLength ? "✓" : "○"} 8+ characters
+              </span>
+              <span className={hasUpper ? "font-medium text-emerald-700" : ""}>
+                {hasUpper ? "✓" : "○"} Uppercase letter
+              </span>
+              <span className={hasLower ? "font-medium text-emerald-700" : ""}>
+                {hasLower ? "✓" : "○"} Lowercase letter
+              </span>
+              <span
+                className={
+                  hasNumber && hasSpecial ? "font-medium text-emerald-700" : ""
+                }
+              >
+                {hasNumber && hasSpecial ? "✓" : "○"} Number &amp; symbol
+              </span>
+            </div>
           </div>
 
           <div>
             <label
               htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-xs font-semibold text-slate-700"
             >
               Confirm Password
             </label>
@@ -204,7 +256,8 @@ export default function RegisterPage() {
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+              placeholder="Re-enter password"
+              className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm text-slate-900 shadow-xs placeholder:text-slate-600 focus-visible:border-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             />
           </div>
 
@@ -212,18 +265,18 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isLoading ? "Creating account..." : "Register"}
+              {isLoading ? "Creating account..." : "Complete Registration"}
             </button>
           </div>
         </form>
 
-        <div className="text-center text-sm text-gray-600">
+        <div className="border-t border-slate-100 pt-4 text-center text-xs text-slate-600">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
           >
             Sign in here
           </Link>
