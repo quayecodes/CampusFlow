@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth } from "@/auth";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 
@@ -27,7 +28,7 @@ export default async function LecturerDashboardPage() {
             <p className="mt-1 font-mono text-xs text-emerald-600">
               Email: {session?.user?.email}
             </p>
-            <p className="font-mono text-xs text-emerald-600">
+            <p className="mt-1 font-mono text-xs text-emerald-600">
               Role: {session?.user?.role}
             </p>
           </div>
@@ -40,6 +41,30 @@ export default async function LecturerDashboardPage() {
               with role <span className="font-semibold">LECTURER</span> can
               access /lecturer routes.
             </p>
+          </div>
+        </div>
+
+        {/* Feature Navigation Cards */}
+        <div className="mt-6 border-t border-gray-100 pt-6">
+          <h2 className="text-sm font-semibold tracking-wider text-gray-500 uppercase">
+            Instructional Services
+          </h2>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Link
+              href="/lecturer/attendance"
+              className="flex items-center justify-between rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-5 shadow-sm transition hover:border-emerald-400 hover:shadow"
+            >
+              <div>
+                <h3 className="font-bold text-emerald-900">
+                  Attendance Tracking
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Mark daily class roll call, track present/late/absent rates,
+                  and monitor students at risk.
+                </p>
+              </div>
+              <span className="text-xl text-emerald-600">→</span>
+            </Link>
           </div>
         </div>
       </div>

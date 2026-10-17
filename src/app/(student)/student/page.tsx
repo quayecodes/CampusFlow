@@ -63,6 +63,20 @@ export default async function StudentDashboardPage() {
               </div>
               <span className="text-xl text-indigo-600">→</span>
             </Link>
+
+            <Link
+              href="/student/attendance"
+              className="flex items-center justify-between rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm transition hover:border-blue-400 hover:shadow"
+            >
+              <div>
+                <h3 className="font-bold text-blue-900">My Attendance</h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Track course participation, review session history, and
+                  monitor compliance with the 75% threshold.
+                </p>
+              </div>
+              <span className="text-xl text-blue-600">→</span>
+            </Link>
           </div>
         </div>
       </div>
