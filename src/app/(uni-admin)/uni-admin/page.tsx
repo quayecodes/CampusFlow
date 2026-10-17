@@ -6,7 +6,7 @@ export default async function UniAdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow-sm border border-gray-200">
+      <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-200 pb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -18,23 +18,27 @@ export default async function UniAdminDashboardPage() {
           </div>
           <SignOutButton />
         </div>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-lg border border-purple-100 bg-purple-50 p-4">
             <h2 className="font-semibold text-purple-900">Session Claims</h2>
-            <p className="text-sm text-purple-700 mt-1">Authenticated via JWT</p>
-            <p className="text-xs text-purple-600 mt-1 font-mono">
+            <p className="mt-1 text-sm text-purple-700">
+              Authenticated via JWT
+            </p>
+            <p className="mt-1 font-mono text-xs text-purple-600">
               Email: {session?.user?.email}
             </p>
-            <p className="text-xs text-purple-600 font-mono">
+            <p className="font-mono text-xs text-purple-600">
               Role: {session?.user?.role}
             </p>
           </div>
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h2 className="font-semibold text-gray-800">RBAC Guard Verification</h2>
-            <p className="text-xs text-gray-600 mt-1">
-              Protected by Next.js edge middleware. Only authenticated users with
-              role <span className="font-semibold">UNI_ADMIN</span> can access
-              /uni-admin routes.
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <h2 className="font-semibold text-gray-800">
+              RBAC Guard Verification
+            </h2>
+            <p className="mt-1 text-xs text-gray-600">
+              Protected by Next.js edge middleware. Only authenticated users
+              with role <span className="font-semibold">UNI_ADMIN</span> can
+              access /uni-admin routes.
             </p>
           </div>
         </div>

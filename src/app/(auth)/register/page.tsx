@@ -62,7 +62,9 @@ export default function RegisterPage() {
           setErrors([json.error?.message || "Registration failed."]);
         }
       } else {
-        setSuccessMessage("Account created successfully! Redirecting to login...");
+        setSuccessMessage(
+          "Account created successfully! Redirecting to login..."
+        );
         setTimeout(() => {
           router.push("/login");
         }, 1500);
@@ -89,7 +91,7 @@ export default function RegisterPage() {
         {errors.length > 0 && (
           <div
             role="alert"
-            className="rounded-md bg-red-50 p-4 text-sm text-red-700 border border-red-200 space-y-1"
+            className="space-y-1 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700"
           >
             {errors.map((err, idx) => (
               <p key={idx}>• {err}</p>
@@ -100,7 +102,7 @@ export default function RegisterPage() {
         {successMessage && (
           <div
             role="status"
-            className="rounded-md bg-green-50 p-4 text-sm text-green-700 border border-green-200"
+            className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-700"
           >
             {successMessage}
           </div>
@@ -122,7 +124,7 @@ export default function RegisterPage() {
               value={formData.fullName}
               onChange={handleChange}
               placeholder="Jane Doe"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
             />
           </div>
 
@@ -142,7 +144,7 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="jane.doe@university.edu"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
             />
           </div>
 
@@ -158,7 +160,7 @@ export default function RegisterPage() {
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
             >
               <option value="STUDENT">Student</option>
               <option value="LECTURER">Lecturer</option>
@@ -183,7 +185,7 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={handleChange}
               placeholder="Min 8 chars, uppercase, lowercase, number, symbol"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
             />
           </div>
 
@@ -202,7 +204,7 @@ export default function RegisterPage() {
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
             />
           </div>
 
@@ -210,7 +212,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Creating account..." : "Register"}
             </button>

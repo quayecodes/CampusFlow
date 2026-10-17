@@ -9,7 +9,8 @@ import { validateLoginInput } from "@/lib/auth/validation";
  * Running bcrypt verification on failed lookups ensures uniform execution time (~250ms),
  * preventing timing attacks from determining whether an email exists in the database.
  */
-const DUMMY_HASH = "$2a$12$e8kZ1qW8qYtY/Y7tC7iRuuO4nOzq6L3V3C8n0F3W2K4Q1Y8P5L6O2";
+const DUMMY_HASH =
+  "$2a$12$e8kZ1qW8qYtY/Y7tC7iRuuO4nOzq6L3V3C8n0F3W2K4Q1Y8P5L6O2";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -21,7 +22,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         const validation = validateLoginInput(credentials ?? {});
-        if (!validation.isValid || !credentials?.email || !credentials?.password) {
+        if (
+          !validation.isValid ||
+          !credentials?.email ||
+          !credentials?.password
+        ) {
           return null;
         }
 
@@ -73,10 +78,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user && token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role;
-        session.user.departmentId = token.departmentId;
-        session.user.programId = token.programId;
+        session.user.id = (token.id || "") as string;
+        if (token.role) {
+          session.user.role = token.role;
+        }
+        session.user.departmentId = token.departmentId ?? null;
+        session.user.programId = token.programId ?? null;
       }
       return session;
     },

@@ -33,7 +33,9 @@ export async function POST(request: Request) {
     const fullName = (body.fullName as string).trim();
     const password = body.password as string;
     const role = body.role as Role;
-    const departmentId = body.departmentId ? (body.departmentId as string) : null;
+    const departmentId = body.departmentId
+      ? (body.departmentId as string)
+      : null;
     const programId = body.programId ? (body.programId as string) : null;
 
     // 2. Check if user with this email already exists

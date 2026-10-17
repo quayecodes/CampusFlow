@@ -6,7 +6,8 @@ export interface ValidationResult {
 }
 
 // RFC 5322 compliant simplified email regex
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+const EMAIL_REGEX =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
 /**
  * Validates user registration payload.
@@ -24,14 +25,22 @@ export function validateRegistrationInput(data: {
   const errors: string[] = [];
 
   // 1. Email validation
-  if (!data.email || typeof data.email !== "string" || !EMAIL_REGEX.test(data.email.trim())) {
+  if (
+    !data.email ||
+    typeof data.email !== "string" ||
+    !EMAIL_REGEX.test(data.email.trim())
+  ) {
     errors.push("A valid email address is required.");
   } else if (data.email.length > 255) {
     errors.push("Email address cannot exceed 255 characters.");
   }
 
   // 2. Full Name validation
-  if (!data.fullName || typeof data.fullName !== "string" || data.fullName.trim().length < 2) {
+  if (
+    !data.fullName ||
+    typeof data.fullName !== "string" ||
+    data.fullName.trim().length < 2
+  ) {
     errors.push("Full name must be at least 2 characters long.");
   } else if (data.fullName.trim().length > 100) {
     errors.push("Full name cannot exceed 100 characters.");
@@ -64,7 +73,11 @@ export function validateRegistrationInput(data: {
 
   // 4. Role validation
   const validRoles = Object.values(Role);
-  if (!data.role || typeof data.role !== "string" || !validRoles.includes(data.role as Role)) {
+  if (
+    !data.role ||
+    typeof data.role !== "string" ||
+    !validRoles.includes(data.role as Role)
+  ) {
     errors.push(`Role must be one of: ${validRoles.join(", ")}`);
   }
 
@@ -83,11 +96,19 @@ export function validateLoginInput(data: {
 }): ValidationResult {
   const errors: string[] = [];
 
-  if (!data.email || typeof data.email !== "string" || !EMAIL_REGEX.test(data.email.trim())) {
+  if (
+    !data.email ||
+    typeof data.email !== "string" ||
+    !EMAIL_REGEX.test(data.email.trim())
+  ) {
     errors.push("A valid email address is required.");
   }
 
-  if (!data.password || typeof data.password !== "string" || data.password.length === 0) {
+  if (
+    !data.password ||
+    typeof data.password !== "string" ||
+    data.password.length === 0
+  ) {
     errors.push("Password is required.");
   }
 
