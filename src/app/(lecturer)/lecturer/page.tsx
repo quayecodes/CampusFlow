@@ -65,6 +65,22 @@ export default async function LecturerDashboardPage() {
               </div>
               <span className="text-xl text-emerald-600">→</span>
             </Link>
+
+            <Link
+              href="/lecturer/assignments"
+              className="flex items-center justify-between rounded-xl border border-teal-200 bg-gradient-to-r from-teal-50 to-white p-5 shadow-sm transition hover:border-teal-400 hover:shadow"
+            >
+              <div>
+                <h3 className="font-bold text-teal-900">
+                  Assignment Management
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Create coursework, inspect student submissions, view late
+                  flags, and record grades with feedback.
+                </p>
+              </div>
+              <span className="text-xl text-teal-600">→</span>
+            </Link>
           </div>
         </div>
       </div>

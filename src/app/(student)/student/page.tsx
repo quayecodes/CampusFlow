@@ -77,6 +77,22 @@ export default async function StudentDashboardPage() {
               </div>
               <span className="text-xl text-blue-600">→</span>
             </Link>
+
+            <Link
+              href="/student/assignments"
+              className="flex items-center justify-between rounded-xl border border-purple-200 bg-gradient-to-r from-purple-50 to-white p-5 shadow-sm transition hover:border-purple-400 hover:shadow"
+            >
+              <div>
+                <h3 className="font-bold text-purple-900">
+                  Course Assignments
+                </h3>
+                <p className="mt-1 text-xs text-gray-600">
+                  Submit coursework files, track due dates and late submission
+                  flags, and view graded feedback.
+                </p>
+              </div>
+              <span className="text-xl text-purple-600">→</span>
+            </Link>
           </div>
         </div>
       </div>

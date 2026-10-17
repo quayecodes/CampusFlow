@@ -37,3 +37,6 @@ context.md
 
 #Local Dev Auth
 .env.password
+
+# User Uploads
+public/uploads/
