@@ -1,0 +1,14 @@
+npm verbose cli C:\Program Files\nodejs\node.exe C:\Users\user\AppData\Roaming\npm\node_modules\npm\bin\npm-cli.js
+npm info using npm@12.0.2
+npm info using node@v24.21.0
+npm verbose title npm install
+npm verbose argv "install" "--loglevel" "verbose"
+npm verbose logfile logs-max:10 dir:C:\Users\user\AppData\Local\npm-cache\_logs\2026-10-17T03_02_48_650Z-
+npm verbose logfile C:\Users\user\AppData\Local\npm-cache\_logs\2026-10-17T03_02_48_650Z-debug-0.log
+npm http cache https://registry.npmjs.org/@prisma%2fclient 238ms (cache hit)
+npm http cache https://registry.npmjs.org/prisma 273ms (cache hit)
+npm http cache https://registry.npmjs.org/typescript 140ms (cache hit)
+npm http cache https://registry.npmjs.org/bcryptjs 48ms (cache hit)
+npm http cache https://registry.npmjs.org/next 153ms (cache hit)
+npm http fetch GET https://registry.npmjs.org/@opentelemetry%2fapi attempt 1 failed with ENOTFOUND
+npm http fetch GET https://registry.npmjs.org/@opentelemetry%2fapi attempt 2 failed with ENOTFOUND

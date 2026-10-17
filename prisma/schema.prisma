@@ -1,0 +1,193 @@
+// ─────────────────────────────────────────────────────────────
+// CampusFlow — Prisma Schema
+// Matches the Phase 3 database design (docs/phase3.md)
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ────────────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  LECTURER
+  DEPT_ADMIN
+  UNI_ADMIN
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  DROPPED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+enum GradeStatus {
+  DRAFT
+  APPROVED
+  PUBLISHED
+}
+
+enum AnnouncementScope {
+  COURSE
+  DEPARTMENT
+  UNIVERSITY
+}
+
+// ── Models ───────────────────────────────────────────────────
+
+model Department {
+  id       String    @id @default(uuid())
+  name     String
+  programs Program[]
+  courses  Course[]
+  users    User[]
+}
+
+model Program {
+  id           String     @id @default(uuid())
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  name         String
+  students     User[]
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  role         Role
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  programId    String?
+  program      Program?    @relation(fields: [programId], references: [id])
+  fullName     String
+  createdAt    DateTime    @default(now())
+
+  // Reverse relations
+  coursesTaught     Course[]           @relation("LecturerCourses")
+  enrollments       Enrollment[]
+  submissions       Submission[]
+  announcements     Announcement[]
+  gradeChangesMade  GradeChangeLog[]
+  gradesApproved    Grade[]            @relation("ApprovedGrades")
+  attendanceMarked  AttendanceRecord[] @relation("MarkedAttendance")
+}
+
+model Course {
+  id           String     @id @default(uuid())
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  lecturerId   String
+  lecturer     User       @relation("LecturerCourses", fields: [lecturerId], references: [id])
+  title        String
+  creditHours  Int
+  maxCapacity  Int
+  semester     String
+  enrollments  Enrollment[]
+  assignments  Assignment[]
+
+  @@index([departmentId, semester])
+}
+
+model Enrollment {
+  id         String           @id @default(uuid())
+  studentId  String
+  student    User             @relation(fields: [studentId], references: [id])
+  courseId   String
+  course     Course           @relation(fields: [courseId], references: [id])
+  semester   String
+  status     EnrollmentStatus @default(ENROLLED)
+  enrolledAt DateTime         @default(now())
+  attendance AttendanceRecord[]
+  grade      Grade?
+
+  @@unique([studentId, courseId, semester])
+}
+
+model AttendanceRecord {
+  id           String           @id @default(uuid())
+  enrollmentId String
+  enrollment   Enrollment       @relation(fields: [enrollmentId], references: [id])
+  sessionDate  DateTime
+  status       AttendanceStatus
+  markedById   String
+  markedBy     User             @relation("MarkedAttendance", fields: [markedById], references: [id])
+
+  @@unique([enrollmentId, sessionDate])
+}
+
+model Assignment {
+  id          String       @id @default(uuid())
+  courseId     String
+  course      Course       @relation(fields: [courseId], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime
+  maxScore    Decimal
+  submissions Submission[]
+}
+
+model Submission {
+  id           String     @id @default(uuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  studentId    String
+  student      User       @relation(fields: [studentId], references: [id])
+  fileUrl      String
+  submittedAt  DateTime
+  isLate       Boolean    @default(false)
+  score        Decimal?
+  feedback     String?
+  gradedAt     DateTime?
+
+  @@unique([assignmentId, studentId])
+}
+
+model Grade {
+  id           String      @id @default(uuid())
+  enrollmentId String      @unique
+  enrollment   Enrollment  @relation(fields: [enrollmentId], references: [id])
+  finalScore   Decimal?
+  letterGrade  String?
+  status       GradeStatus @default(DRAFT)
+  approvedById String?
+  approvedBy   User?       @relation("ApprovedGrades", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
+  updatedAt    DateTime    @updatedAt
+  changeLogs   GradeChangeLog[]
+}
+
+model GradeChangeLog {
+  id          String   @id @default(uuid())
+  gradeId     String
+  grade       Grade    @relation(fields: [gradeId], references: [id])
+  changedById String
+  changedBy   User     @relation(fields: [changedById], references: [id])
+  oldScore    Decimal?
+  newScore    Decimal?
+  changedAt   DateTime @default(now())
+}
+
+model Announcement {
+  id        String            @id @default(uuid())
+  authorId  String
+  author    User              @relation(fields: [authorId], references: [id])
+  scope     AnnouncementScope
+  scopeId   String?
+  title     String
+  body      String
+  createdAt DateTime          @default(now())
+
+  @@index([scope, scopeId])
+}
