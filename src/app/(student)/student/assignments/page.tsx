@@ -35,7 +35,7 @@ export default function StudentAssignmentsPage() {
     message: string;
   } | null>(null);
 
-  // File upload & submission state per assignment
+  // File upload state per assignment
   const [uploadingForId, setUploadingForId] = useState<string | null>(null);
   const [selectedFileMap, setSelectedFileMap] = useState<
     Record<string, File | null>
@@ -92,7 +92,6 @@ export default function StudentAssignmentsPage() {
 
     startSubmitTransition(async () => {
       try {
-        // Step 1: Upload file to multipart endpoint
         const formData = new FormData();
         formData.append("file", file);
 
@@ -108,7 +107,6 @@ export default function StudentAssignmentsPage() {
 
         const fileUrl = uploadJson.data.fileUrl;
 
-        // Step 2: Record student submission in database
         const submitRes = await fetch(
           `/api/v1/assignments/${assignmentId}/submit`,
           {
@@ -133,7 +131,6 @@ export default function StudentAssignmentsPage() {
             : "Assignment submitted successfully on time!",
         });
 
-        // Reset selected file for this assignment & reload
         setSelectedFileMap((prev) => ({ ...prev, [assignmentId]: null }));
         loadAssignments();
       } catch (err: unknown) {
@@ -152,7 +149,14 @@ export default function StudentAssignmentsPage() {
     });
   };
 
-  // Filter assignments based on activeTab
+  const pendingCount = assignments.filter(
+    (a) => a.status === "NOT_SUBMITTED" || a.status === "OVERDUE"
+  ).length;
+  const submittedCount = assignments.filter(
+    (a) => a.status === "SUBMITTED"
+  ).length;
+  const gradedCount = assignments.filter((a) => a.status === "GRADED").length;
+
   const filteredAssignments = assignments.filter((a) => {
     if (activeTab === "PENDING") {
       return a.status === "NOT_SUBMITTED" || a.status === "OVERDUE";
@@ -172,7 +176,7 @@ export default function StudentAssignmentsPage() {
         {/* Navigation Breadcrumb & Header */}
         <div className="mb-6">
           <nav
-            className="mb-1 flex items-center gap-1.5 text-xs text-slate-600"
+            className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-500"
             aria-label="Breadcrumb"
           >
             <Link
@@ -182,16 +186,16 @@ export default function StudentAssignmentsPage() {
               Student Portal
             </Link>
             <span>/</span>
-            <span className="font-semibold text-slate-900" aria-current="page">
+            <span className="font-bold text-slate-900" aria-current="page">
               Assignments
             </span>
           </nav>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
             Course Assignments &amp; Submissions
           </h1>
-          <p className="mt-1 text-xs text-slate-600">
-            Submit coursework files, review due dates and late policies, and
-            view feedback from instructors.
+          <p className="mt-1 text-xs text-slate-500">
+            Submit coursework files, review due dates with automated late
+            detection (FR10), and view graded feedback.
           </p>
         </div>
 
@@ -200,7 +204,7 @@ export default function StudentAssignmentsPage() {
           <div
             role="alert"
             aria-live="polite"
-            className={`mb-6 flex items-center justify-between rounded-xl border p-4 text-xs font-semibold ${
+            className={`mb-6 flex items-center justify-between rounded-2xl border p-4 text-xs font-semibold ${
               notification.type === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                 : "border-red-200 bg-red-50 text-red-800"
@@ -210,41 +214,52 @@ export default function StudentAssignmentsPage() {
             <button
               onClick={() => setNotification(null)}
               aria-label="Dismiss feedback message"
-              className="rounded px-1.5 py-0.5 underline hover:opacity-80 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+              className="rounded px-2 py-0.5 underline hover:opacity-80 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             >
               Dismiss
             </button>
           </div>
         )}
 
-        {/* Tab Filters */}
+        {/* Tab Filters with Count Badges */}
         <div className="mb-6 border-b border-slate-200">
           <nav
             className="-mb-px flex space-x-6 text-xs sm:text-sm"
             role="tablist"
             aria-label="Assignment status filters"
           >
-            {(
-              [
-                { key: "ALL", label: "All Assignments" },
-                { key: "PENDING", label: "To Submit" },
-                { key: "SUBMITTED", label: "Submitted" },
-                { key: "GRADED", label: "Graded" },
-              ] as const
-            ).map((tab) => (
+            {[
+              {
+                key: "ALL",
+                label: "All Assignments",
+                count: assignments.length,
+              },
+              { key: "PENDING", label: "To Submit", count: pendingCount },
+              { key: "SUBMITTED", label: "Submitted", count: submittedCount },
+              { key: "GRADED", label: "Graded", count: gradedCount },
+            ].map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 role="tab"
                 aria-selected={activeTab === tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`border-b-2 px-1 py-3 font-semibold transition focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none ${
+                onClick={() => setActiveTab(tab.key as typeof activeTab)}
+                className={`flex items-center gap-2 border-b-2 px-1 py-3 font-bold transition focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none ${
                   activeTab === tab.key
                     ? "border-indigo-600 text-indigo-600"
-                    : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                    : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800"
                 }`}
               >
-                {tab.label}
+                <span>{tab.label}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 font-mono text-[10px] ${
+                    activeTab === tab.key
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {tab.count}
+                </span>
               </button>
             ))}
           </nav>
@@ -260,16 +275,16 @@ export default function StudentAssignmentsPage() {
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="h-40 animate-pulse rounded-xl border border-slate-200 bg-white"
+                className="h-44 animate-pulse rounded-2xl border border-slate-200 bg-white"
               />
             ))}
           </div>
         ) : filteredAssignments.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-xs">
+          <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-2xs">
             <h2 className="text-base font-bold text-slate-900">
               No assignments found
             </h2>
-            <p className="mt-1 text-xs text-slate-600">
+            <p className="mt-1 text-xs text-slate-500">
               There are no assignments matching your selected filter.
             </p>
           </div>
@@ -284,17 +299,17 @@ export default function StudentAssignmentsPage() {
               return (
                 <div
                   key={item.id}
-                  className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs transition hover:shadow-md"
+                  className="bento-card overflow-hidden rounded-2xl border border-slate-200/90 shadow-2xs"
                 >
                   <div className="p-6">
                     {/* Header: Course & Status */}
                     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="rounded-md border border-indigo-200 bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-800">
+                          <span className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
                             {item.courseTitle}
                           </span>
-                          <span className="text-xs text-slate-600">
+                          <span className="text-xs text-slate-500">
                             Instructor: {item.lecturerName}
                           </span>
                         </div>
@@ -333,7 +348,7 @@ export default function StudentAssignmentsPage() {
                             Due Soon
                           </span>
                         )}
-                        <p className="mt-1 font-mono text-xs text-slate-600">
+                        <p className="mt-1 font-mono text-xs text-slate-500">
                           Due: {due.toLocaleDateString()} at{" "}
                           {due.toLocaleTimeString([], {
                             hour: "2-digit",
@@ -343,12 +358,12 @@ export default function StudentAssignmentsPage() {
                       </div>
                     </div>
 
-                    {/* Graded Feedback Card (FR9) */}
+                    {/* Graded Feedback Card */}
                     {sub && sub.score !== null && (
-                      <div className="mt-5 rounded-xl border border-purple-200 bg-purple-50/50 p-4">
+                      <div className="mt-5 rounded-2xl border border-purple-200 bg-purple-50/50 p-4">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold tracking-wider text-purple-900 uppercase">
-                            Grade Report
+                            Instructor Grade Report
                           </span>
                           <span className="text-xs text-purple-700">
                             Graded on{" "}
@@ -359,12 +374,12 @@ export default function StudentAssignmentsPage() {
                         </div>
                         <div className="mt-2 text-2xl font-black text-purple-900">
                           {sub.score}{" "}
-                          <span className="text-sm font-normal text-purple-800">
+                          <span className="text-sm font-normal text-purple-700">
                             / {item.maxScore} points
                           </span>
                         </div>
                         {sub.feedback && (
-                          <div className="mt-2 rounded-lg border border-purple-100 bg-white/90 p-2.5 text-xs text-purple-900">
+                          <div className="mt-2 rounded-xl border border-purple-100 bg-white p-3 text-xs text-purple-900">
                             <strong className="mb-0.5 block font-bold">
                               Instructor Feedback:
                             </strong>
@@ -376,19 +391,19 @@ export default function StudentAssignmentsPage() {
 
                     {/* Submission Attachment Details */}
                     {sub && (
-                      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-600">
+                      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
                         <div className="flex items-center space-x-2">
                           <span>Submitted File:</span>
                           <a
                             href={sub.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded font-semibold text-indigo-600 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+                            className="rounded font-bold text-indigo-600 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                           >
                             📎 View / Download Attachment
                           </a>
                         </div>
-                        <span className="font-mono text-slate-600">
+                        <span className="font-mono text-slate-500">
                           Uploaded: {new Date(sub.submittedAt).toLocaleString()}
                         </span>
                       </div>
@@ -415,7 +430,7 @@ export default function StudentAssignmentsPage() {
                                 e.target.files ? e.target.files[0] : null
                               )
                             }
-                            className="mt-1 block w-full text-xs text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+                            className="mt-1 block w-full text-xs text-slate-700 file:mr-3 file:rounded-xl file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-indigo-700 hover:file:bg-indigo-100 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                           />
                         </div>
 
@@ -427,13 +442,13 @@ export default function StudentAssignmentsPage() {
                             !selectedFileMap[item.id]
                           }
                           onClick={() => handleSubmitAssignment(item.id)}
-                          className="mt-2 inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-40 sm:mt-4"
+                          className="btn-tactile mt-2 inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-40 sm:mt-4"
                         >
                           {uploadingForId === item.id
                             ? "Uploading & Submitting..."
                             : sub
                               ? "Resubmit Assignment"
-                              : "Submit Assignment"}
+                              : "Submit Assignment →"}
                         </button>
                       </div>
                     </div>

@@ -418,128 +418,224 @@ export default function LecturerAttendancePage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table
-                className="min-w-full divide-y divide-slate-200 text-left text-sm"
-                aria-label="Student attendance roll call table"
-              >
-                <caption className="sr-only">
-                  Student list with session attendance status toggles
-                </caption>
-                <thead className="bg-slate-50 text-[11px] font-bold tracking-wider text-slate-700 uppercase">
-                  <tr>
-                    <th scope="col" className="px-6 py-3.5">
-                      Student Name &amp; Contact
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Cumulative Standing
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Current Saved Status
-                    </th>
-                    <th scope="col" className="px-6 py-3.5 text-right">
-                      Mark Session Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 bg-white text-xs">
-                  {roster.students.map((student) => {
-                    const draftStatus = attendanceDraft[student.enrollmentId];
+            <>
+              {/* Desktop Data Grid (md+) */}
+              <div className="hidden overflow-x-auto md:block">
+                <table
+                  className="min-w-full divide-y divide-slate-200 text-left text-sm"
+                  aria-label="Student attendance roll call table"
+                >
+                  <caption className="sr-only">
+                    Student list with session attendance status toggles
+                  </caption>
+                  <thead className="bg-slate-50 text-[11px] font-bold tracking-wider text-slate-700 uppercase">
+                    <tr>
+                      <th scope="col" className="px-6 py-3.5">
+                        Student Name &amp; Contact
+                      </th>
+                      <th scope="col" className="px-6 py-3.5">
+                        Cumulative Standing
+                      </th>
+                      <th scope="col" className="px-6 py-3.5">
+                        Current Saved Status
+                      </th>
+                      <th scope="col" className="px-6 py-3.5 text-right">
+                        Mark Session Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 bg-white text-xs">
+                    {roster.students.map((student) => {
+                      const draftStatus = attendanceDraft[student.enrollmentId];
 
-                    return (
-                      <tr
-                        key={student.enrollmentId}
-                        className={`transition hover:bg-slate-50 ${
-                          student.isAtRisk ? "bg-red-50/40" : ""
-                        }`}
-                      >
-                        {/* Student Name */}
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-slate-900">
+                      return (
+                        <tr
+                          key={student.enrollmentId}
+                          className={`transition hover:bg-slate-50 ${
+                            student.isAtRisk ? "bg-red-50/40" : ""
+                          }`}
+                        >
+                          {/* Student Name */}
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-slate-900">
+                              {student.studentName}
+                            </div>
+                            <div className="text-slate-600">
+                              {student.studentEmail}
+                            </div>
+                          </td>
+
+                          {/* Cumulative Attendance Standing */}
+                          <td className="px-6 py-4">
+                            <AttendanceThresholdBadge
+                              percentage={student.attendancePercentage}
+                              totalSessions={student.totalSessions}
+                            />
+                            <div className="mt-1 text-slate-600">
+                              {student.presentCount}P / {student.lateCount}L /{" "}
+                              {student.absentCount}A ({student.totalSessions}{" "}
+                              sessions total)
+                            </div>
+                          </td>
+
+                          {/* Current Saved Status */}
+                          <td className="px-6 py-4">
+                            <AttendanceBadge status={student.currentStatus} />
+                          </td>
+
+                          {/* Interactive Status Marking Buttons */}
+                          <td className="px-6 py-4 text-right">
+                            <div className="inline-flex rounded-lg border border-slate-300 bg-slate-50 p-0.5">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleStatusChange(
+                                    student.enrollmentId,
+                                    AttendanceStatus.PRESENT
+                                  )
+                                }
+                                className={`rounded-md px-3 py-1 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none ${
+                                  draftStatus === AttendanceStatus.PRESENT
+                                    ? "bg-emerald-600 text-white shadow-xs"
+                                    : "text-slate-700 hover:text-emerald-800"
+                                }`}
+                              >
+                                Present
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleStatusChange(
+                                    student.enrollmentId,
+                                    AttendanceStatus.LATE
+                                  )
+                                }
+                                className={`rounded-md px-3 py-1 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none ${
+                                  draftStatus === AttendanceStatus.LATE
+                                    ? "bg-amber-500 text-white shadow-xs"
+                                    : "text-slate-700 hover:text-amber-800"
+                                }`}
+                              >
+                                Late
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleStatusChange(
+                                    student.enrollmentId,
+                                    AttendanceStatus.ABSENT
+                                  )
+                                }
+                                className={`rounded-md px-3 py-1 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none ${
+                                  draftStatus === AttendanceStatus.ABSENT
+                                    ? "bg-red-600 text-white shadow-xs"
+                                    : "text-slate-700 hover:text-red-800"
+                                }`}
+                              >
+                                Absent
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Adaptive Roll-Call Cards (< md) */}
+              <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
+                {roster.students.map((student) => {
+                  const draftStatus = attendanceDraft[student.enrollmentId];
+
+                  return (
+                    <div
+                      key={student.enrollmentId}
+                      className={`space-y-3 rounded-2xl border p-4 shadow-2xs ${
+                        student.isAtRisk
+                          ? "border-red-200 bg-red-50/40"
+                          : "border-slate-200 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">
                             {student.studentName}
-                          </div>
-                          <div className="text-slate-600">
+                          </p>
+                          <p className="text-xs text-slate-500">
                             {student.studentEmail}
-                          </div>
-                        </td>
+                          </p>
+                        </div>
+                        <AttendanceThresholdBadge
+                          percentage={student.attendancePercentage}
+                          totalSessions={student.totalSessions}
+                        />
+                      </div>
 
-                        {/* Cumulative Attendance Standing */}
-                        <td className="px-6 py-4">
-                          <AttendanceThresholdBadge
-                            percentage={student.attendancePercentage}
-                            totalSessions={student.totalSessions}
-                          />
-                          <div className="mt-1 text-slate-600">
-                            {student.presentCount}P / {student.lateCount}L /{" "}
-                            {student.absentCount}A ({student.totalSessions}{" "}
-                            sessions total)
-                          </div>
-                        </td>
+                      <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-slate-500">
+                        <span>Sessions Record:</span>
+                        <span className="font-mono font-medium">
+                          {student.presentCount}P • {student.lateCount}L •{" "}
+                          {student.absentCount}A
+                        </span>
+                      </div>
 
-                        {/* Current Saved Status */}
-                        <td className="px-6 py-4">
-                          <AttendanceBadge status={student.currentStatus} />
-                        </td>
-
-                        {/* Interactive Status Marking Buttons */}
-                        <td className="px-6 py-4 text-right">
-                          <div className="inline-flex rounded-lg border border-slate-300 bg-slate-50 p-0.5">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleStatusChange(
-                                  student.enrollmentId,
-                                  AttendanceStatus.PRESENT
-                                )
-                              }
-                              className={`rounded-md px-3 py-1 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none ${
-                                draftStatus === AttendanceStatus.PRESENT
-                                  ? "bg-emerald-600 text-white shadow-xs"
-                                  : "text-slate-700 hover:text-emerald-800"
-                              }`}
-                            >
-                              Present
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleStatusChange(
-                                  student.enrollmentId,
-                                  AttendanceStatus.LATE
-                                )
-                              }
-                              className={`rounded-md px-3 py-1 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none ${
-                                draftStatus === AttendanceStatus.LATE
-                                  ? "bg-amber-500 text-white shadow-xs"
-                                  : "text-slate-700 hover:text-amber-800"
-                              }`}
-                            >
-                              Late
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleStatusChange(
-                                  student.enrollmentId,
-                                  AttendanceStatus.ABSENT
-                                )
-                              }
-                              className={`rounded-md px-3 py-1 text-xs font-bold transition focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none ${
-                                draftStatus === AttendanceStatus.ABSENT
-                                  ? "bg-red-600 text-white shadow-xs"
-                                  : "text-slate-700 hover:text-red-800"
-                              }`}
-                            >
-                              Absent
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                      {/* Tactile Big Tap Status Buttons */}
+                      <div className="grid grid-cols-3 gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleStatusChange(
+                              student.enrollmentId,
+                              AttendanceStatus.PRESENT
+                            )
+                          }
+                          className={`btn-tactile flex items-center justify-center rounded-xl py-2 text-xs font-bold transition ${
+                            draftStatus === AttendanceStatus.PRESENT
+                              ? "bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-500/20"
+                              : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
+                        >
+                          Present
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleStatusChange(
+                              student.enrollmentId,
+                              AttendanceStatus.LATE
+                            )
+                          }
+                          className={`btn-tactile flex items-center justify-center rounded-xl py-2 text-xs font-bold transition ${
+                            draftStatus === AttendanceStatus.LATE
+                              ? "bg-amber-500 text-white shadow-xs ring-2 ring-amber-500/20"
+                              : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
+                        >
+                          Late
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleStatusChange(
+                              student.enrollmentId,
+                              AttendanceStatus.ABSENT
+                            )
+                          }
+                          className={`btn-tactile flex items-center justify-center rounded-xl py-2 text-xs font-bold transition ${
+                            draftStatus === AttendanceStatus.ABSENT
+                              ? "bg-red-600 text-white shadow-xs ring-2 ring-red-500/20"
+                              : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
+                        >
+                          Absent
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           {/* Footer Save Action */}

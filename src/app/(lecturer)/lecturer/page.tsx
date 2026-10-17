@@ -8,13 +8,19 @@ export default async function LecturerDashboardPage() {
     <div className="py-8 sm:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Welcome Banner */}
-        <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-950 p-6 text-white shadow-sm sm:p-8">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="relative overflow-hidden rounded-3xl border border-emerald-900/10 bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900 p-6 text-white shadow-xl sm:p-8">
+          <div
+            className="absolute -top-10 -right-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl"
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <span className="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/30 px-3 py-1 text-xs font-semibold text-emerald-200">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200">
+                <span className="pulse-glow h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 Department of Computer Science • Faculty Member
               </span>
-              <h1 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              <h1 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-4xl">
                 Welcome back, {session?.user?.name || "Lecturer"}
               </h1>
               <p className="mt-1 text-xs text-emerald-200 sm:text-sm">
@@ -25,7 +31,7 @@ export default async function LecturerDashboardPage() {
             <div className="flex items-center gap-3">
               <Link
                 href="/lecturer/attendance"
-                className="rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-emerald-900 shadow-sm transition hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                className="btn-tactile rounded-xl bg-white px-5 py-2.5 text-xs font-black text-emerald-950 shadow-md hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
               >
                 Mark Roll Call →
               </Link>
@@ -33,59 +39,73 @@ export default async function LecturerDashboardPage() {
           </div>
         </div>
 
-        {/* Security & Access Notice */}
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-            <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-              <h2 className="text-xs font-bold tracking-wider text-slate-800 uppercase">
-                Instructor Credentials
-              </h2>
-            </div>
-            <p className="mt-2 text-xs text-slate-600">
-              Authenticated Account:{" "}
-              <strong className="text-slate-900">{session?.user?.email}</strong>
+        {/* Quick Instructional Metrics Bento Bar */}
+        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="bento-card border border-slate-200 p-4">
+            <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+              Assigned Courses
+            </span>
+            <p className="mt-1 text-xl font-black text-slate-900">2 Active</p>
+            <p className="text-[11px] text-slate-500">CS201 &amp; CS202</p>
+          </div>
+
+          <div className="bento-card border border-slate-200 p-4">
+            <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+              Attendance Tool
+            </span>
+            <p className="mt-1 text-xl font-black text-emerald-600">
+              Roll Call Ready
             </p>
-            <p className="mt-1 text-[11px] text-slate-600">
-              Role: Faculty Lecturer (Authorized Course Scope)
+            <p className="text-[11px] text-slate-500">
+              Present / Late / Absent
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-            <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-teal-500"></span>
-              <h2 className="text-xs font-bold tracking-wider text-slate-800 uppercase">
-                Academic Governance
-              </h2>
-            </div>
-            <p className="mt-2 text-xs text-slate-600">
-              Grade entries require Department Administrator approval prior to
-              student publication (FR12). All revisions are logged (FR14).
+          <div className="bento-card border border-slate-200 p-4">
+            <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+              Coursework Tasks
+            </span>
+            <p className="mt-1 text-xl font-black text-teal-600">
+              Submissions Inbox
+            </p>
+            <p className="text-[11px] text-slate-500">
+              Score bounds &amp; review
+            </p>
+          </div>
+
+          <div className="bento-card border border-slate-200 p-4">
+            <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+              Grade Sheet Status
+            </span>
+            <p className="mt-1 text-xl font-black text-indigo-700">
+              Draft &amp; Approval
+            </p>
+            <p className="text-[11px] text-slate-500">
+              Department Review queue
             </p>
           </div>
         </div>
 
         {/* Instructional Services Grid */}
         <div className="mt-8">
-          <h2 className="text-sm font-bold tracking-wider text-slate-500 uppercase">
-            Instructional Services &amp; Management
+          <h2 className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+            Instructional Services &amp; Tools
           </h2>
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Attendance Roll Call */}
             <Link
               href="/lecturer/attendance"
-              className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition hover:border-emerald-400 hover:shadow-md focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+              className="bento-card group flex flex-col justify-between border border-slate-200/90 p-6 shadow-2xs focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
             >
               <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 transition group-hover:scale-105">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition group-hover:scale-110">
                   <svg
                     className="h-5 w-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="2"
                     stroke="currentColor"
-                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -94,15 +114,15 @@ export default async function LecturerDashboardPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 group-hover:text-emerald-600">
+                <h3 className="mt-4 text-base font-bold text-slate-900 transition group-hover:text-emerald-600">
                   Attendance Roll Call
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
                   Record daily lecture attendance with Present, Late, or Absent
                   toggles and monitor at-risk students below 75% (FR4, FR6).
                 </p>
               </div>
-              <div className="mt-6 flex items-center justify-between text-xs font-semibold text-emerald-600">
+              <div className="mt-6 flex items-center justify-between text-xs font-bold text-emerald-600">
                 <span>Mark Attendance</span>
                 <span className="transition group-hover:translate-x-1">→</span>
               </div>
@@ -111,17 +131,16 @@ export default async function LecturerDashboardPage() {
             {/* Assignments & Grading */}
             <Link
               href="/lecturer/assignments"
-              className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition hover:border-teal-400 hover:shadow-md focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+              className="bento-card group flex flex-col justify-between border border-slate-200/90 p-6 shadow-2xs focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
             >
               <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 text-teal-700 transition group-hover:scale-105">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700 transition group-hover:scale-110">
                   <svg
                     className="h-5 w-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="2"
                     stroke="currentColor"
-                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -130,16 +149,16 @@ export default async function LecturerDashboardPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 group-hover:text-teal-600">
+                <h3 className="mt-4 text-base font-bold text-slate-900 transition group-hover:text-teal-600">
                   Coursework Management
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
                   Create assignments, view student uploaded attachments, inspect
                   automatic late flags, and submit scores with feedback
                   (FR7–10).
                 </p>
               </div>
-              <div className="mt-6 flex items-center justify-between text-xs font-semibold text-teal-600">
+              <div className="mt-6 flex items-center justify-between text-xs font-bold text-teal-600">
                 <span>Grade Submissions</span>
                 <span className="transition group-hover:translate-x-1">→</span>
               </div>
@@ -148,17 +167,16 @@ export default async function LecturerDashboardPage() {
             {/* Final Grade Entry */}
             <Link
               href="/lecturer/grades"
-              className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition hover:border-indigo-400 hover:shadow-md focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+              className="bento-card group flex flex-col justify-between border border-slate-200/90 p-6 shadow-2xs focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
             >
               <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 transition group-hover:scale-105">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 transition group-hover:scale-110">
                   <svg
                     className="h-5 w-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="2"
                     stroke="currentColor"
-                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -167,34 +185,33 @@ export default async function LecturerDashboardPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 group-hover:text-indigo-600">
+                <h3 className="mt-4 text-base font-bold text-slate-900 transition group-hover:text-indigo-600">
                   Grade Entry Sheet
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
                   Enter final raw scores, calculate real-time letter grades, and
                   submit grade sheets to Department Admin for approval.
                 </p>
               </div>
-              <div className="mt-6 flex items-center justify-between text-xs font-semibold text-indigo-600">
+              <div className="mt-6 flex items-center justify-between text-xs font-bold text-indigo-600">
                 <span>Enter Grades</span>
                 <span className="transition group-hover:translate-x-1">→</span>
               </div>
             </Link>
 
-            {/* Course Announcements */}
+            {/* Course Bulletins */}
             <Link
               href="/lecturer/announcements"
-              className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition hover:border-blue-400 hover:shadow-md focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+              className="bento-card group flex flex-col justify-between border border-slate-200/90 p-6 shadow-2xs focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
             >
               <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700 transition group-hover:scale-105">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700 transition group-hover:scale-110">
                   <svg
                     className="h-5 w-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="2"
                     stroke="currentColor"
-                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -203,15 +220,15 @@ export default async function LecturerDashboardPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 group-hover:text-blue-600">
+                <h3 className="mt-4 text-base font-bold text-slate-900 transition group-hover:text-blue-600">
                   Course Bulletins
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
                   Post class notices to your enrolled courses (FR15) and monitor
                   department and university announcements (FR18).
                 </p>
               </div>
-              <div className="mt-6 flex items-center justify-between text-xs font-semibold text-blue-600">
+              <div className="mt-6 flex items-center justify-between text-xs font-bold text-blue-600">
                 <span>Manage Bulletins</span>
                 <span className="transition group-hover:translate-x-1">→</span>
               </div>

@@ -26,6 +26,61 @@ interface StudentCourseAttendance {
   records: AttendanceRecordItem[];
 }
 
+function AttendanceProgressRing({
+  percentage,
+  size = 72,
+  strokeWidth = 6,
+}: {
+  percentage: number;
+  size?: number;
+  strokeWidth?: number;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const isHealthy = percentage >= 75;
+
+  return (
+    <div
+      className="relative inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      <svg className="-rotate-90 transform" width={size} height={size}>
+        <circle
+          className="text-slate-100"
+          strokeWidth={strokeWidth}
+          stroke="currentColor"
+          fill="transparent"
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
+        />
+        <circle
+          className={`transition-all duration-700 ease-out ${
+            isHealthy ? "text-emerald-500" : "text-red-500"
+          }`}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          stroke="currentColor"
+          fill="transparent"
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
+        />
+      </svg>
+      <span
+        className={`absolute text-xs font-black ${
+          isHealthy ? "text-emerald-700" : "text-red-700"
+        }`}
+      >
+        {percentage}%
+      </span>
+    </div>
+  );
+}
+
 export default function StudentAttendancePage() {
   const [courses, setCourses] = useState<StudentCourseAttendance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,7 +134,7 @@ export default function StudentAttendancePage() {
         {/* Navigation Breadcrumb & Header */}
         <div className="mb-6">
           <nav
-            className="mb-1 flex items-center gap-1.5 text-xs text-slate-600"
+            className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-500"
             aria-label="Breadcrumb"
           >
             <Link
@@ -89,16 +144,16 @@ export default function StudentAttendancePage() {
               Student Portal
             </Link>
             <span>/</span>
-            <span className="font-semibold text-slate-900" aria-current="page">
-              Attendance
+            <span className="font-bold text-slate-900" aria-current="page">
+              Attendance Compliance
             </span>
           </nav>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-            My Course Attendance
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+            Attendance &amp; Exam Eligibility (FR6)
           </h1>
-          <p className="mt-1 text-xs text-slate-600">
-            Track your class session participation, monitor the mandatory 75%
-            minimum attendance threshold, and review session histories.
+          <p className="mt-1 text-xs text-slate-500">
+            Monitor class roll call, track compliance with the 75% minimum
+            threshold for exam qualification, and inspect session histories.
           </p>
         </div>
 
@@ -107,79 +162,71 @@ export default function StudentAttendancePage() {
           <div
             role="alert"
             aria-live="polite"
-            className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-800"
+            className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-800"
           >
             {error}
           </div>
         )}
 
-        {/* Overall Health Card */}
+        {/* Cockpit Summary Bento Grid */}
         {!isLoading && totalCourses > 0 && (
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-              <span className="text-[11px] font-bold tracking-wider text-slate-700 uppercase">
-                Average Attendance
-              </span>
-              <div className="mt-2 flex items-baseline space-x-2">
-                <span
-                  className={`text-3xl font-extrabold ${
-                    overallAverage >= 75 ? "text-emerald-600" : "text-red-600"
-                  }`}
-                >
-                  {overallAverage}%
+            <div className="bento-card flex items-center justify-between border border-slate-200 p-6">
+              <div>
+                <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                  Institutional Average
                 </span>
-                <span className="text-xs text-slate-600">across courses</span>
+                <p className="mt-1 text-3xl font-black text-slate-900">
+                  {overallAverage}%
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Across all registered courses
+                </p>
               </div>
+              <AttendanceProgressRing percentage={overallAverage} size={70} />
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-              <span className="text-[11px] font-bold tracking-wider text-slate-700 uppercase">
-                Enrolled Courses
+            <div className="bento-card border border-slate-200 p-6">
+              <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                Active Enrolled Courses
               </span>
-              <div className="mt-2 flex items-baseline space-x-2">
-                <span className="text-3xl font-extrabold text-slate-900">
-                  {totalCourses}
-                </span>
-                <span className="text-xs text-slate-600">active this term</span>
-              </div>
+              <p className="mt-1 text-3xl font-black text-slate-900">
+                {totalCourses} Courses
+              </p>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Current semester: 2026-Fall
+              </p>
             </div>
 
             <div
-              className={`rounded-xl border p-5 shadow-xs ${
+              className={`bento-card border p-6 ${
                 atRiskCount > 0
-                  ? "border-red-200 bg-red-50"
-                  : "border-slate-200 bg-white"
+                  ? "border-red-200 bg-red-50/50"
+                  : "border-emerald-200 bg-emerald-50/50"
               }`}
             >
-              <span className="text-[11px] font-bold tracking-wider text-slate-700 uppercase">
+              <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
                 Compliance Status (FR6)
               </span>
-              <div className="mt-2 flex items-baseline space-x-2">
-                {atRiskCount > 0 ? (
-                  <>
-                    <span className="text-3xl font-extrabold text-red-600">
-                      {atRiskCount}
-                    </span>
-                    <span className="text-xs font-semibold text-red-800">
-                      course(s) below 75% threshold
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-3xl font-extrabold text-emerald-600">
-                      0
-                    </span>
-                    <span className="text-xs font-semibold text-emerald-800">
-                      All courses in good standing
-                    </span>
-                  </>
-                )}
+              <div className="mt-1 flex items-baseline gap-2">
+                <span
+                  className={`text-3xl font-black ${
+                    atRiskCount > 0 ? "text-red-700" : "text-emerald-700"
+                  }`}
+                >
+                  {atRiskCount > 0 ? `${atRiskCount} At Risk` : "100% Eligible"}
+                </span>
               </div>
+              <p className="mt-0.5 text-xs font-medium text-slate-600">
+                {atRiskCount > 0
+                  ? "Action required: Must attend upcoming lectures"
+                  : "All courses meet or exceed 75% threshold"}
+              </p>
             </div>
           </div>
         )}
 
-        {/* Course Attendance List */}
+        {/* Course Attendance Cards */}
         {isLoading ? (
           <div
             className="space-y-4"
@@ -189,20 +236,20 @@ export default function StudentAttendancePage() {
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="h-32 animate-pulse rounded-xl border border-slate-200 bg-white"
+                className="h-36 animate-pulse rounded-2xl border border-slate-200 bg-white"
               />
             ))}
           </div>
         ) : courses.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-xs">
-            <p className="text-xs text-slate-600">
-              You are not registered in any courses for this semester.
+          <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-2xs">
+            <p className="text-sm font-bold text-slate-800">
+              You are not registered in any courses this semester.
             </p>
             <Link
               href="/student/courses"
-              className="mt-3 inline-block text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+              className="mt-3 inline-block rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-700"
             >
-              Go to Course Registration →
+              Register for Courses &rarr;
             </Link>
           </div>
         ) : (
@@ -214,113 +261,83 @@ export default function StudentAttendancePage() {
               return (
                 <div
                   key={course.courseId}
-                  className={`overflow-hidden rounded-xl border bg-white shadow-xs transition hover:shadow-md ${
+                  className={`overflow-hidden rounded-2xl border bg-white shadow-2xs transition hover:shadow-md ${
                     hasWarning ? "border-red-300" : "border-slate-200"
                   }`}
                 >
-                  {/* Course Card Header */}
-                  <div className="p-5 sm:p-6">
+                  {/* Card Header */}
+                  <div className="p-6">
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-base font-bold text-slate-900">
-                            {course.courseTitle}
-                          </h2>
-                          <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-slate-700">
-                            {course.creditHours} Credits
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-slate-600">
-                          Instructor:{" "}
-                          <span className="font-semibold text-slate-800">
-                            {course.lecturerName}
-                          </span>
-                        </p>
-                      </div>
-
-                      {/* Percentage & Standing */}
-                      <div className="flex flex-col items-start sm:items-end">
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className={`text-2xl font-black ${
-                              course.attendancePercentage >= 75
-                                ? "text-emerald-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {course.attendancePercentage}%
-                          </span>
-                          {hasWarning ? (
-                            <span className="rounded-full border border-red-200 bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-800">
-                              ⚠️ &lt;75% At Risk
-                            </span>
-                          ) : (
-                            <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
-                              ✓ Good Standing
-                            </span>
-                          )}
-                        </div>
-                        <p className="mt-0.5 text-xs text-slate-600">
-                          {course.presentCount} present of{" "}
-                          {course.totalSessions} sessions
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Visual Progress Bar */}
-                    <div className="mt-4">
-                      <div
-                        className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100"
-                        role="progressbar"
-                        aria-valuenow={course.attendancePercentage}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`${course.courseTitle} attendance: ${course.attendancePercentage}%`}
-                      >
-                        <div
-                          className={`h-full transition-all duration-500 ${
-                            course.attendancePercentage >= 75
-                              ? "bg-emerald-500"
-                              : "bg-red-500"
-                          }`}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              course.attendancePercentage
-                            )}%`,
-                          }}
+                      <div className="flex items-center gap-4">
+                        <AttendanceProgressRing
+                          percentage={course.attendancePercentage}
+                          size={64}
+                          strokeWidth={6}
                         />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-base font-bold text-slate-900">
+                              {course.courseTitle}
+                            </h2>
+                            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[11px] font-semibold text-slate-700">
+                              {course.creditHours} Credits
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-xs text-slate-500">
+                            Instructor:{" "}
+                            <span className="font-semibold text-slate-700">
+                              {course.lecturerName}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Percentage Badge */}
+                      <div className="flex items-center justify-between sm:flex-col sm:items-end">
+                        {hasWarning ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-100 px-3 py-1 text-xs font-bold text-red-800">
+                            <span className="pulse-glow h-2 w-2 rounded-full bg-red-500" />
+                            &lt;75% At-Risk (FR6)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                            Exam Eligible
+                          </span>
+                        )}
+                        <span className="mt-1 font-mono text-xs text-slate-500">
+                          {course.presentCount} of {course.totalSessions}{" "}
+                          sessions
+                        </span>
                       </div>
                     </div>
 
-                    {/* Low Attendance Warning Box (FR6) */}
+                    {/* Low Attendance Notice Banner (FR6) */}
                     {hasWarning && (
-                      <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-800">
-                        <span className="font-bold">
-                          Attendance Requirement Warning:
-                        </span>{" "}
-                        Your attendance has dropped below 75%. University policy
-                        requires at least 75% participation to remain eligible
-                        for the final course examination.
+                      <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs leading-relaxed text-red-900">
+                        <strong className="font-bold">Attendance Alert:</strong>{" "}
+                        Your participation is below the mandatory 75% threshold.
+                        Under university policy, students with attendance below
+                        75% are ineligible to sit for the final examination.
                       </div>
                     )}
 
-                    {/* Detailed Stats Chips */}
+                    {/* Stats Chips & Toggle */}
                     <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                      <div className="flex space-x-4 text-xs font-medium">
-                        <span className="text-slate-700">
+                      <div className="flex flex-wrap gap-4 text-xs font-semibold">
+                        <span className="text-slate-600">
                           Total Sessions:{" "}
                           <strong className="text-slate-900">
                             {course.totalSessions}
                           </strong>
                         </span>
-                        <span className="text-emerald-800">
+                        <span className="text-emerald-700">
                           Present: <strong>{course.presentCount}</strong>
                         </span>
-                        <span className="text-amber-800">
+                        <span className="text-amber-700">
                           Late: <strong>{course.lateCount}</strong>
                         </span>
-                        <span className="text-red-800">
+                        <span className="text-red-700">
                           Absent: <strong>{course.absentCount}</strong>
                         </span>
                       </div>
@@ -329,58 +346,38 @@ export default function StudentAttendancePage() {
                         type="button"
                         onClick={() => toggleExpand(course.courseId)}
                         aria-expanded={isExpanded}
-                        className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+                        className="btn-tactile text-xs font-bold text-indigo-600 hover:text-indigo-800 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                       >
                         {isExpanded
-                          ? "Hide Session History ▲"
-                          : `View Session History (${course.records.length}) ▼`}
+                          ? "Hide Session Logs ▲"
+                          : `View Session Logs (${course.records.length}) ▼`}
                       </button>
                     </div>
                   </div>
 
-                  {/* Expandable Session Log Table */}
+                  {/* Expandable Session Log */}
                   {isExpanded && (
                     <div className="border-t border-slate-200 bg-slate-50/70 p-5">
-                      <h3 className="mb-3 text-[11px] font-bold tracking-wider text-slate-700 uppercase">
-                        Session Roll History
+                      <h3 className="mb-3 text-[11px] font-bold tracking-wider text-slate-600 uppercase">
+                        Recorded Session History
                       </h3>
                       {course.records.length === 0 ? (
-                        <p className="text-xs text-slate-600">
-                          No class sessions have been recorded yet for this
-                          course.
+                        <p className="text-xs text-slate-500">
+                          No lecture roll-calls recorded yet for this course.
                         </p>
                       ) : (
-                        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-                          <table
-                            className="min-w-full divide-y divide-slate-200 text-left text-xs"
-                            aria-label={`Session history for ${course.courseTitle}`}
-                          >
-                            <thead className="bg-slate-50 text-[11px] font-bold text-slate-700 uppercase">
-                              <tr>
-                                <th scope="col" className="px-4 py-2.5">
-                                  Date
-                                </th>
-                                <th scope="col" className="px-4 py-2.5">
-                                  Recorded Status
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                              {course.records.map((rec) => (
-                                <tr key={rec.id} className="hover:bg-slate-50">
-                                  <td className="px-4 py-2 font-mono text-slate-800">
-                                    {rec.sessionDate}
-                                  </td>
-                                  <td className="px-4 py-2">
-                                    <AttendanceBadge
-                                      status={rec.status}
-                                      size="sm"
-                                    />
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                          {course.records.map((rec) => (
+                            <div
+                              key={rec.id}
+                              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 shadow-2xs"
+                            >
+                              <span className="font-mono text-xs font-semibold text-slate-800">
+                                {rec.sessionDate}
+                              </span>
+                              <AttendanceBadge status={rec.status} size="sm" />
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>

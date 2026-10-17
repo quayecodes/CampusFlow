@@ -41,19 +41,22 @@ export function AnnouncementCard({
     switch (scope) {
       case AnnouncementScope.UNIVERSITY:
         return (
-          <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-bold text-purple-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
             🌐 University-Wide
           </span>
         );
       case AnnouncementScope.DEPARTMENT:
         return (
-          <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
             🏛️ {scopeLabel}
           </span>
         );
       case AnnouncementScope.COURSE:
         return (
-          <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             📚 {scopeLabel}
           </span>
         );
@@ -82,13 +85,13 @@ export function AnnouncementCard({
   });
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs transition hover:border-slate-300 hover:shadow-md">
+    <article className="bento-card border border-slate-200/90 p-6 shadow-2xs">
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
         <div className="flex flex-wrap items-center gap-2">
           {getScopeBadge()}
           <time
             dateTime={createdAt}
-            className="font-mono text-xs text-slate-600"
+            className="font-mono text-[11px] text-slate-400"
           >
             {formattedDate}
           </time>
@@ -99,29 +102,31 @@ export function AnnouncementCard({
             type="button"
             onClick={() => onDelete && onDelete(id)}
             aria-label={`Delete announcement: ${title}`}
-            className="rounded px-2 py-0.5 text-xs font-semibold text-red-700 hover:bg-red-50 hover:text-red-900 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none"
+            className="btn-tactile rounded-lg px-2.5 py-1 text-xs font-bold text-red-600 transition hover:bg-red-50 hover:text-red-800 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none"
           >
             Delete
           </button>
         )}
       </div>
 
-      <h3 className="mt-2 text-base font-bold text-slate-900">{title}</h3>
+      <h3 className="mt-3 text-base leading-snug font-bold text-slate-900">
+        {title}
+      </h3>
 
-      <div className="mt-2 text-sm leading-relaxed whitespace-pre-line text-slate-700">
+      <div className="mt-2 text-xs leading-relaxed whitespace-pre-line text-slate-600">
         {body}
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-600">
+      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
         <div className="flex items-center space-x-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-800">
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-50 text-[10px] font-bold text-indigo-700">
             {author.fullName.charAt(0)}
           </div>
           <div>
-            <span className="font-semibold text-slate-900">
+            <span className="font-semibold text-slate-800">
               {author.fullName}
             </span>
-            <span className="text-slate-600">
+            <span className="text-slate-400">
               {" "}
               • {getRoleBadge(author.role)}
             </span>

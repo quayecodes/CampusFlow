@@ -365,119 +365,201 @@ export default function LecturerGradesPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table
-                className="min-w-full divide-y divide-slate-200 text-left text-sm"
-                aria-label="Student grade entry sheet"
-              >
-                <caption className="sr-only">
-                  Course grade sheet for score entry and letter grade
-                  computation
-                </caption>
-                <thead className="bg-slate-50 text-[11px] font-bold tracking-wider text-slate-700 uppercase">
-                  <tr>
-                    <th scope="col" className="px-6 py-3.5">
-                      Student Name &amp; Email
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Final Score (0-100%)
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Computed Letter Grade
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 bg-white text-xs">
-                  {gradeSheet.students.map((student) => {
-                    const draftVal = scoresDraft[student.enrollmentId] || "";
-                    const numericVal = parseFloat(draftVal);
-                    const calculated =
-                      !isNaN(numericVal) && numericVal >= 0 && numericVal <= 100
-                        ? calculateGradePoint(numericVal)
-                        : null;
+            <>
+              {/* Desktop Table View (md+) */}
+              <div className="hidden overflow-x-auto md:block">
+                <table
+                  className="min-w-full divide-y divide-slate-200 text-left text-sm"
+                  aria-label="Student grade entry sheet"
+                >
+                  <caption className="sr-only">
+                    Course grade sheet for score entry and letter grade
+                    computation
+                  </caption>
+                  <thead className="bg-slate-50 text-[11px] font-bold tracking-wider text-slate-700 uppercase">
+                    <tr>
+                      <th scope="col" className="px-6 py-3.5">
+                        Student Name &amp; Email
+                      </th>
+                      <th scope="col" className="px-6 py-3.5">
+                        Final Score (0-100%)
+                      </th>
+                      <th scope="col" className="px-6 py-3.5">
+                        Computed Letter Grade
+                      </th>
+                      <th scope="col" className="px-6 py-3.5">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 bg-white text-xs">
+                    {gradeSheet.students.map((student) => {
+                      const draftVal = scoresDraft[student.enrollmentId] || "";
+                      const numericVal = parseFloat(draftVal);
+                      const calculated =
+                        !isNaN(numericVal) &&
+                        numericVal >= 0 &&
+                        numericVal <= 100
+                          ? calculateGradePoint(numericVal)
+                          : null;
 
-                    return (
-                      <tr
-                        key={student.enrollmentId}
-                        className="hover:bg-slate-50"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-slate-900">
+                      return (
+                        <tr
+                          key={student.enrollmentId}
+                          className="hover:bg-slate-50"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-slate-900">
+                              {student.studentName}
+                            </div>
+                            <div className="font-mono text-slate-600">
+                              {student.studentEmail}
+                            </div>
+                          </td>
+
+                          {/* Final Score Input */}
+                          <td className="px-6 py-4">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value={draftVal}
+                                onChange={(e) =>
+                                  handleScoreChange(
+                                    student.enrollmentId,
+                                    e.target.value
+                                  )
+                                }
+                                aria-label={`Final score percentage for ${student.studentName}`}
+                                placeholder="e.g. 85.5"
+                                className="w-24 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-xs focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+                              />
+                              <span className="text-xs font-semibold text-slate-600">
+                                %
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Letter Grade Pill */}
+                          <td className="px-6 py-4">
+                            {calculated ? (
+                              <span
+                                className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-black ${
+                                  calculated.letter === "F"
+                                    ? "border-red-200 bg-red-50 text-red-800"
+                                    : calculated.letter.startsWith("A")
+                                      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                      : "border-blue-200 bg-blue-50 text-blue-800"
+                                }`}
+                              >
+                                Grade {calculated.letter} (
+                                {calculated.point.toFixed(1)} GP)
+                              </span>
+                            ) : (
+                              <span className="text-xs text-slate-600 italic">
+                                Pending score entry
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Status Badge */}
+                          <td className="px-6 py-4">
+                            {student.status === GradeStatus.PUBLISHED ? (
+                              <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
+                                Published
+                              </span>
+                            ) : (
+                              <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                                Draft
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards View (< md) */}
+              <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
+                {gradeSheet.students.map((student) => {
+                  const draftVal = scoresDraft[student.enrollmentId] || "";
+                  const numericVal = parseFloat(draftVal);
+                  const calculated =
+                    !isNaN(numericVal) && numericVal >= 0 && numericVal <= 100
+                      ? calculateGradePoint(numericVal)
+                      : null;
+
+                  return (
+                    <div
+                      key={student.enrollmentId}
+                      className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">
                             {student.studentName}
-                          </div>
-                          <div className="font-mono text-slate-600">
+                          </p>
+                          <p className="font-mono text-xs text-slate-500">
                             {student.studentEmail}
-                          </div>
-                        </td>
+                          </p>
+                        </div>
+                        {calculated ? (
+                          <span
+                            className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-black ${
+                              calculated.letter === "F"
+                                ? "border-red-200 bg-red-50 text-red-800"
+                                : calculated.letter.startsWith("A")
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                  : "border-blue-200 bg-blue-50 text-blue-800"
+                            }`}
+                          >
+                            Grade {calculated.letter}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-slate-400">
+                            Unscored
+                          </span>
+                        )}
+                      </div>
 
-                        {/* Final Score Input */}
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2">
-                            <input
-                              type="number"
-                              min="0"
-                              max="100"
-                              step="0.1"
-                              value={draftVal}
-                              onChange={(e) =>
-                                handleScoreChange(
-                                  student.enrollmentId,
-                                  e.target.value
-                                )
-                              }
-                              aria-label={`Final score percentage for ${student.studentName}`}
-                              placeholder="e.g. 85.5"
-                              className="w-24 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-xs focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
-                            />
-                            <span className="text-xs font-semibold text-slate-600">
-                              %
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Letter Grade Pill */}
-                        <td className="px-6 py-4">
-                          {calculated ? (
-                            <span
-                              className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-black ${
-                                calculated.letter === "F"
-                                  ? "border-red-200 bg-red-50 text-red-800"
-                                  : calculated.letter.startsWith("A")
-                                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                                    : "border-blue-200 bg-blue-50 text-blue-800"
-                              }`}
-                            >
-                              Grade {calculated.letter} (
-                              {calculated.point.toFixed(1)} GP)
-                            </span>
-                          ) : (
-                            <span className="text-xs text-slate-600 italic">
-                              Pending score entry
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Status Badge */}
-                        <td className="px-6 py-4">
-                          {student.status === GradeStatus.PUBLISHED ? (
-                            <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
-                              Published
-                            </span>
-                          ) : (
-                            <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                              Draft
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                      <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                        <label
+                          htmlFor={`mobile-score-${student.enrollmentId}`}
+                          className="text-xs font-semibold text-slate-700"
+                        >
+                          Final Score:
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            id={`mobile-score-${student.enrollmentId}`}
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={draftVal}
+                            onChange={(e) =>
+                              handleScoreChange(
+                                student.enrollmentId,
+                                e.target.value
+                              )
+                            }
+                            placeholder="0-100"
+                            className="w-24 rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-bold text-slate-900 shadow-2xs focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+                          />
+                          <span className="text-xs font-bold text-slate-500">
+                            %
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           {/* Footer Save Action */}

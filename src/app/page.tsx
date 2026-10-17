@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import Link from "next/link";
 import { SignOutButton } from "@/components/auth/SignOutButton";
+import { InteractiveHeroSandbox } from "@/components/home/InteractiveHeroSandbox";
+import { PersonaQuickLoginGrid } from "@/components/home/PersonaQuickLoginGrid";
 
 export default async function HomePage() {
   const session = await auth();
@@ -22,15 +24,15 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white">
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
+      {/* Top Glass Header */}
+      <header className="glass-header sticky top-0 z-40">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="flex items-center gap-2.5 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+            className="group flex items-center gap-2.5 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             aria-label="CampusFlow Homepage"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-sm transition group-hover:scale-105">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -50,7 +52,7 @@ export default async function HomePage() {
               <span className="text-lg font-bold tracking-tight text-slate-900">
                 CampusFlow
               </span>
-              <span className="ml-2 hidden rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 sm:inline-block">
+              <span className="ml-2 hidden rounded-full border border-indigo-200 bg-indigo-50/80 px-2.5 py-0.5 text-[10px] font-bold text-indigo-700 sm:inline-block">
                 Academic 2026/27
               </span>
             </div>
@@ -68,7 +70,7 @@ export default async function HomePage() {
                 </span>
                 <Link
                   href={getDashboardHref(session.user?.role)}
-                  className="rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  className="btn-tactile rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Go to Dashboard →
                 </Link>
@@ -78,15 +80,15 @@ export default async function HomePage() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="rounded-lg px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+                  className="rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  className="btn-tactile rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
-                  Create Account
+                  Get Started
                 </Link>
               </div>
             )}
@@ -95,33 +97,34 @@ export default async function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50/60 via-white to-slate-50 pt-16 pb-20 sm:pt-24 sm:pb-28">
+      <section className="mesh-gradient-hero relative overflow-hidden pt-16 pb-20 sm:pt-24 sm:pb-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white px-3 py-1 text-xs font-semibold text-indigo-700 shadow-xs">
-              <span className="flex h-2 w-2 rounded-full bg-indigo-600"></span>
-              Smart University Management Platform
+            {/* 2026 Status Pill */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-white/90 px-3.5 py-1 text-xs font-bold text-indigo-700 shadow-xs">
+              <span className="pulse-glow flex h-2 w-2 rounded-full bg-emerald-500" />
+              Next-Gen Academic ERP • 2026 Enterprise Edition
             </div>
 
-            <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-              Unified Academic Operations for the{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                Modern University
+            <h1 className="mx-auto mt-6 max-w-4xl text-4xl leading-tight font-black tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+              The Intelligent Operating System for{" "}
+              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent">
+                Higher Education
               </span>
             </h1>
 
-            <p className="mx-auto mt-5 max-w-3xl text-base text-slate-600 sm:text-lg lg:text-xl">
-              CampusFlow replaces fragmented spreadsheets and disconnected
-              portals with a single, role-governed platform: concurrent course
-              registration, 75% attendance threshold monitoring, coursework
-              management, grade approval workflows, and scoped announcements.
+            <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg lg:text-xl">
+              CampusFlow replaces fragmented spreadsheets with unified
+              governance: transactional course capacity locking, automated 75%
+              attendance compliance monitoring, coursework file pipelines, and
+              tamper-evident 3-stage grade approval workflows.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               {session ? (
                 <Link
                   href={getDashboardHref(session.user?.role)}
-                  className="w-full rounded-xl bg-indigo-600 px-7 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none sm:w-auto"
+                  className="btn-tactile w-full rounded-xl bg-indigo-600 px-7 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none sm:w-auto"
                 >
                   Open {session.user?.role?.replace("_", " ")} Portal →
                 </Link>
@@ -129,13 +132,13 @@ export default async function HomePage() {
                 <>
                   <Link
                     href="/login"
-                    className="w-full rounded-xl bg-indigo-600 px-7 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none sm:w-auto"
+                    className="btn-tactile w-full rounded-xl bg-indigo-600 px-7 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none sm:w-auto"
                   >
-                    Launch Demo Portals
+                    Launch Interactive Demo
                   </Link>
                   <Link
                     href="/register"
-                    className="w-full rounded-xl border border-slate-300 bg-white px-7 py-3 text-sm font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none sm:w-auto"
+                    className="btn-tactile w-full rounded-xl border border-slate-300 bg-white px-7 py-3 text-sm font-bold text-slate-700 shadow-xs hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none sm:w-auto"
                   >
                     Register as Student
                   </Link>
@@ -143,38 +146,33 @@ export default async function HomePage() {
               )}
             </div>
 
-            {/* Quick Metrics Bar */}
-            <div className="mt-14 grid grid-cols-2 gap-4 border-y border-slate-200/80 bg-white/60 py-6 sm:grid-cols-4 sm:gap-8">
+            {/* Interactive Sandbox Product Tour */}
+            <InteractiveHeroSandbox />
+
+            {/* Platform Metrics Bar */}
+            <div className="mt-14 grid grid-cols-2 gap-4 rounded-2xl border-y border-slate-200/80 bg-white/70 py-6 backdrop-blur-md sm:grid-cols-4 sm:gap-8">
               <div>
-                <p className="text-2xl font-bold text-indigo-600 sm:text-3xl">
-                  100%
-                </p>
-                <p className="mt-1 text-xs font-medium text-slate-600">
+                <p className="text-3xl font-black text-indigo-600">100%</p>
+                <p className="mt-1 text-xs font-semibold text-slate-600">
                   Transactional Concurrency Locking
                 </p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-indigo-600 sm:text-3xl">
-                  75%
-                </p>
-                <p className="mt-1 text-xs font-medium text-slate-600">
-                  Mandatory Attendance Threshold
+                <p className="text-3xl font-black text-emerald-600">75%</p>
+                <p className="mt-1 text-xs font-semibold text-slate-600">
+                  Automated Attendance Rule
                 </p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-indigo-600 sm:text-3xl">
-                  3-Stage
-                </p>
-                <p className="mt-1 text-xs font-medium text-slate-600">
-                  Academic Grade Governance
+                <p className="text-3xl font-black text-amber-600">3-Stage</p>
+                <p className="mt-1 text-xs font-semibold text-slate-600">
+                  Audited Grade Approval Queue
                 </p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-indigo-600 sm:text-3xl">
-                  38 / 38
-                </p>
-                <p className="mt-1 text-xs font-medium text-slate-600">
-                  Integration Test Passing
+                <p className="text-3xl font-black text-purple-600">38 / 38</p>
+                <p className="mt-1 text-xs font-semibold text-slate-600">
+                  Pass Rate on Test Suites
                 </p>
               </div>
             </div>
@@ -183,222 +181,59 @@ export default async function HomePage() {
       </section>
 
       {/* Role Portals Grid */}
-      <section className="py-16 sm:py-20">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-xs font-bold tracking-wider text-indigo-600 uppercase">
+          <div className="mb-12 text-center">
+            <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
               Role-Based Access Control
+            </span>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+              Tailored Portals for Every Campus Stakeholder
             </h2>
-            <p className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-              Tailored Portals for Every University Stakeholder
-            </p>
-            <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-600">
               Edge middleware isolates routes and permissions across four
-              distinct academic personas.
+              distinct academic personas. Click any persona below for 1-click
+              instant login:
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Student Card */}
-            <div className="flex flex-col justify-between rounded-2xl border border-indigo-100 bg-white p-6 shadow-xs transition hover:border-indigo-300 hover:shadow-md">
-              <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700">
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-5.25 6.557c-.502 0-.962-.06-1.396-.174"
-                    />
-                  </svg>
-                </div>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">
-                  Student Portal
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  Browse and register for courses up to the 18-credit cap,
-                  monitor attendance compliance, upload assignment files with
-                  late detection, view official GPA and grade records.
-                </p>
-                <div className="mt-4 rounded-lg bg-slate-50 p-2.5 font-mono text-[11px] text-slate-600">
-                  Demo:{" "}
-                  <span className="font-semibold text-slate-900">
-                    student1@campusflow.edu
-                  </span>
-                </div>
-              </div>
-              <Link
-                href="/student"
-                className="mt-6 flex items-center justify-between text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-              >
-                Access Student Portal <span>→</span>
-              </Link>
-            </div>
-
-            {/* Lecturer Card */}
-            <div className="flex flex-col justify-between rounded-2xl border border-emerald-100 bg-white p-6 shadow-xs transition hover:border-emerald-300 hover:shadow-md">
-              <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-                    />
-                  </svg>
-                </div>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">
-                  Lecturer Portal
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  Mark daily roll call with Present/Late/Absent toggles, create
-                  assignments, grade submissions with score bounds and feedback,
-                  enter draft grades and submit to department queue.
-                </p>
-                <div className="mt-4 rounded-lg bg-slate-50 p-2.5 font-mono text-[11px] text-slate-600">
-                  Demo:{" "}
-                  <span className="font-semibold text-slate-900">
-                    dr.mensah@campusflow.edu
-                  </span>
-                </div>
-              </div>
-              <Link
-                href="/lecturer"
-                className="mt-6 flex items-center justify-between text-xs font-semibold text-emerald-600 hover:text-emerald-800"
-              >
-                Access Lecturer Portal <span>→</span>
-              </Link>
-            </div>
-
-            {/* Dept Admin Card */}
-            <div className="flex flex-col justify-between rounded-2xl border border-amber-100 bg-white p-6 shadow-xs transition hover:border-amber-300 hover:shadow-md">
-              <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"
-                    />
-                  </svg>
-                </div>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">
-                  Department Admin
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  Review submitted grade sheets in the departmental queue,
-                  approve and publish official grades, inspect tamper-evident
-                  post-publication audit trails, post department announcements.
-                </p>
-                <div className="mt-4 rounded-lg bg-slate-50 p-2.5 font-mono text-[11px] text-slate-600">
-                  Demo:{" "}
-                  <span className="font-semibold text-slate-900">
-                    dept.admin@campusflow.edu
-                  </span>
-                </div>
-              </div>
-              <Link
-                href="/dept-admin"
-                className="mt-6 flex items-center justify-between text-xs font-semibold text-amber-600 hover:text-amber-800"
-              >
-                Access Dept Admin Portal <span>→</span>
-              </Link>
-            </div>
-
-            {/* Uni Admin Card */}
-            <div className="flex flex-col justify-between rounded-2xl border border-purple-100 bg-white p-6 shadow-xs transition hover:border-purple-300 hover:shadow-md">
-              <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-700">
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">
-                  University Admin
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  System-wide institutional governance, campus emergency
-                  bulletin broadcasts, overall audit compliance, and
-                  institutional user administration.
-                </p>
-                <div className="mt-4 rounded-lg bg-slate-50 p-2.5 font-mono text-[11px] text-slate-600">
-                  Demo:{" "}
-                  <span className="font-semibold text-slate-900">
-                    admin@campusflow.edu
-                  </span>
-                </div>
-              </div>
-              <Link
-                href="/uni-admin"
-                className="mt-6 flex items-center justify-between text-xs font-semibold text-purple-600 hover:text-purple-800"
-              >
-                Access Uni Admin Portal <span>→</span>
-              </Link>
-            </div>
-          </div>
+          <PersonaQuickLoginGrid />
         </div>
       </section>
 
-      {/* Feature Deep Dive */}
-      <section className="border-t border-slate-200/80 bg-white py-16 sm:py-20">
+      {/* Core Capabilities Bento Grid */}
+      <section className="border-t border-slate-200/80 bg-white py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-xs font-bold tracking-wider text-indigo-600 uppercase">
-              Core Capabilities
+          <div className="mb-12 text-center">
+            <span className="text-xs font-bold tracking-wider text-indigo-600 uppercase">
+              Engineered For Institutional Scale
+            </span>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+              Architected for Integrity, Concurrency &amp; Compliance
             </h2>
-            <p className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-              Engineered for Integrity, Concurrency &amp; Compliance
-            </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div className="rounded-xl border border-slate-200 p-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 font-bold text-indigo-600">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="bento-card border border-slate-200 p-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-lg font-bold text-indigo-600">
                 1
               </div>
               <h3 className="mt-4 text-base font-bold text-slate-900">
                 Transactional Capacity Locking
               </h3>
               <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                Over-enrollment is prevented using interactive database
-                transactions (
+                Over-enrollment is mathematically prevented using interactive
+                database transactions (
                 <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[11px]">
                   prisma.$transaction
                 </code>
                 ). Seats are verified and locked atomically, eliminating
-                registration race conditions.
+                registration race conditions even during registration rush.
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 p-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 font-bold text-emerald-600">
+            <div className="bento-card border border-slate-200 p-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-lg font-bold text-emerald-600">
                 2
               </div>
               <h3 className="mt-4 text-base font-bold text-slate-900">
@@ -411,8 +246,8 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 p-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 font-bold text-purple-600">
+            <div className="bento-card border border-slate-200 p-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-lg font-bold text-purple-600">
                 3
               </div>
               <h3 className="mt-4 text-base font-bold text-slate-900">
@@ -433,39 +268,39 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-slate-50 py-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-xs text-slate-600 sm:flex-row sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-900">CampusFlow</span>
-            <span>•</span>
-            <span>Final Year Project Demonstration</span>
-            <span>•</span>
-            <span className="rounded bg-slate-200 px-1.5 py-0.5 font-mono text-[10px] text-slate-800">
-              v0.2.0-beta
-            </span>
+      <footer className="border-t border-slate-200 bg-slate-900 py-12 text-white">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 text-xs sm:flex-row sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white">
+              CF
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">CampusFlow</p>
+              <p className="text-[11px] text-slate-400">
+                Smart University Management System • Academic 2026/27
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link
-              href="/login"
-              className="text-slate-600 hover:text-slate-900 hover:underline"
-            >
+          <div className="flex flex-wrap items-center gap-6 text-slate-400">
+            <Link href="/login" className="transition hover:text-white">
               Sign In
             </Link>
-            <Link
-              href="/register"
-              className="text-slate-600 hover:text-slate-900 hover:underline"
-            >
-              Register
+            <Link href="/register" className="transition hover:text-white">
+              Student Registration
             </Link>
             <a
               href="https://github.com/quayecodes/CampusFlow"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-600 hover:text-slate-900 hover:underline"
+              className="transition hover:text-white"
             >
               GitHub Repository
             </a>
+          </div>
+
+          <div className="text-[11px] text-slate-400">
+            Release v0.2.0-beta • WCAG 2.1 AA Compliant
           </div>
         </div>
       </footer>
