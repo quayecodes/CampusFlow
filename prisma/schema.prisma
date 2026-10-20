@@ -82,6 +82,8 @@ model User {
   gradeChangesMade  GradeChangeLog[]
   gradesApproved    Grade[]            @relation("ApprovedGrades")
   attendanceMarked  AttendanceRecord[] @relation("MarkedAttendance")
+
+  @@index([role, departmentId])
 }
 
 model Course {
@@ -98,6 +100,7 @@ model Course {
   assignments  Assignment[]
 
   @@index([departmentId, semester])
+  @@index([lecturerId])
 }
 
 model Enrollment {
@@ -113,6 +116,7 @@ model Enrollment {
   grade      Grade?
 
   @@unique([studentId, courseId, semester])
+  @@index([courseId, status])
 }
 
 model AttendanceRecord {
@@ -125,6 +129,7 @@ model AttendanceRecord {
   markedBy     User             @relation("MarkedAttendance", fields: [markedById], references: [id])
 
   @@unique([enrollmentId, sessionDate])
+  @@index([sessionDate])
 }
 
 model Assignment {
@@ -152,6 +157,7 @@ model Submission {
   gradedAt     DateTime?
 
   @@unique([assignmentId, studentId])
+  @@index([studentId])
 }
 
 model Grade {
@@ -166,6 +172,8 @@ model Grade {
   approvedAt   DateTime?
   updatedAt    DateTime    @updatedAt
   changeLogs   GradeChangeLog[]
+
+  @@index([status])
 }
 
 model GradeChangeLog {
@@ -177,6 +185,8 @@ model GradeChangeLog {
   oldScore    Decimal?
   newScore    Decimal?
   changedAt   DateTime @default(now())
+
+  @@index([gradeId])
 }
 
 model Announcement {

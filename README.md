@@ -8,7 +8,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Relational_DB-4169E1?style=flat&logo=postgresql)](https://www.postgresql.org/)
 [![Auth.js](https://img.shields.io/badge/Auth.js-NextAuth_v5-purple?style=flat&logo=auth0)](https://authjs.dev/)
 
-CampusFlow is a production-grade, centralized university management platform designed to unify academic workflows: concurrent course registration with race-condition locking, session attendance roll call with mandatory 75% compliance monitoring, coursework file submissions with automatic late detection, a multi-stage grade approval workflow with post-publication audit logging, and role-scoped campus announcements.
+CampusFlow is an enterprise-hardened, centralized university management SaaS platform designed to unify academic workflows: concurrent course registration with race-condition locking, session attendance roll call with mandatory 75% compliance monitoring, coursework file submissions with automatic late detection, a multi-stage grade approval workflow with post-publication audit logging, role-scoped campus announcements, and an OWASP Top 10 hardened security perimeter.
 
 ---
 
@@ -19,8 +19,9 @@ Many academic institutions rely on fragmented software, manual paperwork, and di
 - **Attendance Compliance Risks**: Manual attendance tracking makes identifying students falling below mandatory participation thresholds (e.g., 75%) difficult until exam periods.
 - **Audit Deficiencies**: Grade modifications without departmental approval trails or tamper-evident logging.
 - **Communication Silos**: Lack of a unified notification feed combining course, department, and university broadcasts.
+- **Security Vulnerabilities**: Privilege escalation, unauthorized grade alterations, and unvalidated file upload vectors.
 
-CampusFlow provides an integrated, role-governed web application designed to eliminate operational friction, guarantee database-level concurrency protection, and uphold academic governance.
+CampusFlow provides an integrated, role-governed web application designed to eliminate operational friction, guarantee database-level concurrency protection, enforce multi-tenant departmental isolation, and uphold academic governance.
 
 ---
 
@@ -29,7 +30,7 @@ CampusFlow provides an integrated, role-governed web application designed to eli
 ### 1. Course Browsing & Transactional Registration (FR1, FR2, FR3)
 - **Domain Service**: `src/services/enrollmentService.ts`
 - **Concurrency Protection**: Registration executes inside interactive Prisma database transactions (`prisma.$transaction`) verifying available seats atomically before inserting the enrollment record.
-- **Features**: Live credit hours counter (enforcing an 18-credit maximum limit), capacity status meters (`<70%` green, `70-99%` amber, `100%` full), duplicate registration prevention, and drop course workflows.
+- **Features**: Live credit hours counter (enforcing an 18-credit maximum limit), capacity status meters (`<70%` green, `70-99%` amber, `100%` full), duplicate registration prevention (409 Conflict), and drop course workflows.
 
 ### 2. Attendance Tracking & Roll Call Marking (FR4, FR5, FR6)
 - **Domain Service**: `src/services/attendanceService.ts`
@@ -42,7 +43,7 @@ CampusFlow provides an integrated, role-governed web application designed to eli
 - **Domain Service**: `src/services/assignmentService.ts`
 - **Features**:
   - Lecturer assignment creation (title, instructions, due date, max score).
-  - Multipart coursework attachment uploads to `/public/uploads/` with collision-safe file identifiers.
+  - Multipart coursework attachment uploads to `/public/uploads/` with binary magic byte validation (`%PDF-`, PNG, JPEG, ZIP, DOCX), 15MB size caps, extension allowlisting, and collision-safe file identifiers.
   - **FR10 Late Detection**: Automatically flags and logs late submissions (`isLate = true`) submitted past the deadline without rejecting student work.
   - Lecturer grading drawer with score bounds validation (`0 <= score <= maxScore`) and qualitative feedback.
 
@@ -60,6 +61,14 @@ CampusFlow provides an integrated, role-governed web application designed to eli
   - Hierarchical creation permissions: `UNIVERSITY` (Uni Admin), `DEPARTMENT` (Dept Admin), `COURSE` (Lecturer).
   - **FR18 Unified Feed**: A single bulletin feed synthesizing notifications based on the user's role, department affiliation, and enrolled courses while strictly isolating unrelated departments.
 
+### 6. OWASP Security Shield & Hardened HTTP Headers
+- **Security Utilities**: `src/lib/upload-utils.ts` and `next.config.ts`
+- **Defenses**:
+  - **HTTP Response Headers**: HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`.
+  - **Upload Hardening**: File header magic byte inspection, strict extension allowlist (`.pdf`, `.docx`, `.doc`, `.txt`, `.zip`, `.png`, `.jpg`), executable script rejection (`.exe`, `.sh`, `.php`, `.svg`, `.html`), and path traversal neutralization.
+  - **Sensitive Data Isolation**: Zero `passwordHash` disclosure in any user-facing API or service response.
+  - **SQL Injection Resistance**: Strict parameter binding across all Prisma ORM database operations.
+
 ---
 
 ## 🛠️ Tech Stack & Decisions
@@ -68,11 +77,11 @@ CampusFlow provides an integrated, role-governed web application designed to eli
 |---|---|---|
 | **Framework** | Next.js 15 (App Router, React 19) | Full-stack server components, nested layouts, edge middleware |
 | **Language** | TypeScript (Strict Mode) | End-to-end static typing and domain contract enforcement |
-| **Styling** | Tailwind CSS v4 + PostCSS | Token-driven styling with zero runtime overhead |
+| **Styling** | Tailwind CSS v4 + PostCSS | Token-driven styling with zero runtime overhead, 2026 UX design system |
 | **Database** | PostgreSQL | Relational integrity, ACID transactions, foreign key constraints |
-| **ORM** | Prisma ORM | Type-safe queries, migration control, and relation queries |
+| **ORM** | Prisma ORM | Type-safe queries, migration control, index optimization, and relational joins |
 | **Authentication** | NextAuth.js v5 + bcryptjs | Secure JWT session cookies, 12-round bcrypt password hashing |
-| **Security & RBAC** | Edge Middleware | Centralized route protection guarding role-specific namespaces |
+| **Security & RBAC** | Edge Middleware + Service Guards | Centralized route protection and multi-tenant department isolation |
 
 ---
 
@@ -86,19 +95,23 @@ CampusFlow/
 │   ├── phase3.md                     # 3NF database schema & ERD definitions
 │   ├── phase4.md                     # Project initialization & tooling
 │   ├── phase5.md                     # Authentication & authorization review
-│   └── phase6.md                     # Core features acceptance criteria & test results
+│   ├── phase6.md                     # Core features acceptance criteria & test results
+│   ├── phase7.md                     # 2026 commercial UI/UX polish & accessibility
+│   └── phase8.md                     # Automated testing, OWASP audit & debt review
 ├── prisma/
-│   ├── schema.prisma                 # 11 models, 5 enums, indexes, constraints
+│   ├── schema.prisma                 # 11 models, 5 enums, performance indexes, constraints
 │   └── seed.ts                       # Foundational seed data (departments, courses, users)
 ├── public/
 │   └── uploads/                      # Coursework submission file storage
-├── scripts/                          # Automated integration test suites
-│   ├── test-auth.ts                  # Auth & bcrypt verification
-│   ├── test-course-registration.ts   # Capacity locking & transactional registration
-│   ├── test-attendance.ts            # Roll call marking & 75% threshold compliance
-│   ├── test-assignments.ts           # Coursework, file uploads & late flags
-│   ├── test-grades.ts                # Grade approval, 4.0 GPA & audit trail
-│   └── test-announcements.ts         # Scoped announcements & unified feed
+├── scripts/                          # Automated integration & security test suites
+│   ├── run-all-tests.ts              # Master unified test runner (59/59 tests)
+│   ├── test-auth.ts                  # Auth & bcrypt verification (5 tests)
+│   ├── test-course-registration.ts   # Capacity locking & transactional registration (6 tests)
+│   ├── test-attendance.ts            # Roll call marking & 75% threshold compliance (8 tests)
+│   ├── test-assignments.ts           # Coursework, file uploads & late flags (8 tests)
+│   ├── test-grades.ts                # Grade approval, 4.0 GPA & audit trail (8 tests)
+│   ├── test-announcements.ts         # Scoped announcements & unified feed (8 tests)
+│   └── test-security-rbac.ts         # OWASP Top 10 & RBAC security audit (16 tests)
 ├── src/
 │   ├── app/                          # Next.js App Router
 │   │   ├── (auth)/                   # /login, /register
@@ -107,11 +120,11 @@ CampusFlow/
 │   │   ├── (dept-admin)/             # /dept-admin/grades, /announcements
 │   │   ├── (uni-admin)/              # /uni-admin/announcements
 │   │   └── api/v1/                   # REST API routes with envelope format { data, error }
-│   ├── components/                   # Reusable UI components & cards
-│   ├── lib/                          # Singleton Prisma client & password helpers
+│   ├── components/                   # Reusable UI components, sandboxes & modal switchers
+│   ├── lib/                          # Singleton Prisma client, upload security & password helpers
 │   ├── services/                     # Decoupled business logic layer
 │   └── types/                        # TypeScript declarations & NextAuth extensions
-└── next.config.ts                    # Build & workspace tracing configuration
+└── next.config.ts                    # Production security headers & workspace configuration
 ```
 
 ---
@@ -140,7 +153,7 @@ CampusFlow/
    Create a `.env` file in the root directory:
    ```env
    DATABASE_URL="postgresql://postgres:postgres@localhost:5432/campusflow?schema=public"
-   NEXTAUTH_SECRET="your-development-nextauth-secret-key-min-32-chars"
+   AUTH_SECRET="your-development-nextauth-secret-key-min-32-chars"
    NEXTAUTH_URL="http://localhost:3000"
    ```
 
@@ -175,28 +188,31 @@ All seeded demo accounts use the standard password: `CampusFlow2026!`
 
 ---
 
-## 🧪 Automated Test Suites
+## 🧪 Comprehensive Automated Testing (59/59 Tests)
 
-CampusFlow includes automated test suites covering all domain logic, concurrency locks, and security boundaries:
+CampusFlow includes an automated testing suite covering all domain logic, concurrency locks, and security boundaries.
 
+### Run All 59 Tests
 ```bash
-# Test Authentication & Password Hashing
-npx tsx scripts/test-auth.ts
+npm test
+```
 
-# Test Course Registration & Capacity Locking
-npx tsx scripts/test-course-registration.ts
+### Run Individual Domain Suites
+```bash
+npm run test:auth          # Suite 1: Authentication & Password Policies (5 tests)
+npm run test:courses       # Suite 2: Registration & Concurrency Locking (6 tests)
+npm run test:attendance    # Suite 3: Roll Call & 75% Compliance Rule (8 tests)
+npm run test:assignments   # Suite 4: Assignments, File Uploads & Late Flags (8 tests)
+npm run test:grades        # Suite 5: 3-Tier Grade Approval & Audit Logs (8 tests)
+npm run test:announcements # Suite 6: Scoped Bulletins & Feed Isolation (8 tests)
+npm run test:security      # Suite 7: RBAC Authorization & OWASP Top 10 (16 tests)
+```
 
-# Test Attendance & 75% Threshold Flagging
-npx tsx scripts/test-attendance.ts
-
-# Test Assignment Uploads, Late Flags & Grading
-npx tsx scripts/test-assignments.ts
-
-# Test Grade Approval Workflow, GPA & Audit Logging
-npx tsx scripts/test-grades.ts
-
-# Test Scoped Announcements & Unified Feed
-npx tsx scripts/test-announcements.ts
+### Code Formatting & Type Safety Verification
+```bash
+npm run format:check       # Check Prettier code style
+npm run format             # Format all source files
+npx tsc --noEmit           # Validate strict TypeScript type safety
 ```
 
 ---
@@ -211,7 +227,7 @@ npx tsx scripts/test-announcements.ts
 - [x] **Phase 5**: Authentication, Password Hashing & Edge RBAC ([docs/phase5.md](docs/phase5.md))
 - [x] **Phase 6**: Core Application Features (5/5 Modules Implemented) ([docs/phase6.md](docs/phase6.md))
 - [x] **Phase 7**: UI/UX Refinement, Accessibility (WCAG 2.1 AA) & Design Polish ([docs/phase7.md](docs/phase7.md))
-- [ ] **Phase 8**: Unit & E2E Testing, OWASP Security Review & Debt Audit
+- [x] **Phase 8**: Unit & E2E Testing, OWASP Security Review & Debt Audit ([docs/phase8.md](docs/phase8.md))
 - [ ] **Phase 9**: CI/CD Pipelines & Production Deployment
 - [ ] **Phase 10**: Documentation & Portfolio Presentation
 
@@ -219,7 +235,7 @@ npx tsx scripts/test-announcements.ts
 
 ## 🏷️ Release History
 
-- **v0.2.0-beta** (Current) — Complete implementation of Phase 5 & Phase 6: All 5 core functional modules, interactive UI portals, transactional concurrency controls, and automated test coverage.
+- **v0.2.0-beta** — Complete implementation of Phase 5 & Phase 6: All 5 core functional modules, interactive UI portals, transactional concurrency controls, and automated test coverage.
 - **v0.1.0-alpha** — Scaffolding, PostgreSQL Prisma 3NF schema, NextAuth configuration, and tooling initialization.
 
 ---
