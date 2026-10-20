@@ -1,0 +1,206 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CampusFlow Enterprise Academic Operations API",
+    "version": "1.0.0",
+    "description": "High-concurrency Student Information System (SIS) and Academic Governance REST API. Engineered with Next.js 15, Prisma 6, and PostgreSQL 17 for institutional interoperability.",
+    "contact": {
+      "name": "CampusFlow Institutional Engineering",
+      "email": "registrar@campusflow.edu"
+    },
+    "license": {
+      "name": "Commercial Enterprise License"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Local Development / Staging Gateway"
+    },
+    {
+      "url": "https://campusflow.edu/api/v1",
+      "description": "Production Institutional Cluster"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "System Health & SLA Telemetry",
+        "description": "Returns cluster SLA operational status, PostgreSQL round-trip query latency, and Node.js process heap memory allocation.",
+        "responses": {
+          "200": {
+            "description": "System operational and healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "HEALTHY" },
+                    "timestamp": { "type": "string", "format": "date-time" },
+                    "uptimeSeconds": { "type": "number", "example": 3600 },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "object",
+                          "properties": {
+                            "status": { "type": "string", "example": "CONNECTED" },
+                            "latencyMs": { "type": "number", "example": 3.8 }
+                          }
+                        },
+                        "memory": {
+                          "type": "object",
+                          "properties": {
+                            "rssMb": { "type": "number", "example": 84.2 },
+                            "heapUsedMb": { "type": "number", "example": 45.6 }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "System degraded or database unreachable"
+          }
+        }
+      }
+    },
+    "/grades/export": {
+      "get": {
+        "summary": "FERPA Academic Transcript Export & Verification",
+        "description": "Generates a certified RFC 4180 CSV or structured JSON academic transcript. Includes cryptographic SHA-256 digital verification hash for tamper evidence.",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "description": "Export format: csv or json (default: json)",
+            "schema": {
+              "type": "string",
+              "enum": ["json", "csv"],
+              "default": "json"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "query",
+            "required": false,
+            "description": "Target student ID (Admins/Registrars only; Students default to their own record)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certified academic record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "institution": { "type": "string", "example": "CampusFlow Institute of Technology" },
+                    "verificationHash": { "type": "string", "example": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
+                    "student": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "matricNumber": { "type": "string" },
+                        "cumulativeGpa": { "type": "number", "example": 3.85 },
+                        "academicStanding": { "type": "string", "example": "First Class Honours" }
+                      }
+                    },
+                    "grades": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "courseCode": { "type": "string", "example": "CS101" },
+                          "courseTitle": { "type": "string", "example": "Introduction to Computer Science" },
+                          "score": { "type": "number", "example": 92 },
+                          "letterGrade": { "type": "string", "example": "A" },
+                          "creditHours": { "type": "number", "example": 3 },
+                          "semester": { "type": "string", "example": "Fall 2026" }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized — missing or invalid session cookie" },
+          "403": { "description": "Forbidden — insufficient role privileges" }
+        }
+      }
+    },
+    "/enrollments": {
+      "get": {
+        "summary": "Course Catalog with Real-Time Seat Capacity",
+        "description": "Retrieves the semester course catalog with atomic seat counts and active enrollment status.",
+        "parameters": [
+          {
+            "name": "semester",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "example": "Fall 2026" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catalog list with live metrics"
+          }
+        }
+      },
+      "post": {
+        "summary": "Atomic Course Enrollment",
+        "description": "Enrolls a student inside an ACID transaction (`prisma.$transaction`) enforcing atomic seat limits without race conditions.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["courseId", "semester"],
+                "properties": {
+                  "courseId": { "type": "string" },
+                  "semester": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Enrollment successful" },
+          "409": { "description": "Course full or duplicate enrollment" }
+        }
+      }
+    },
+    "/attendance/mark": {
+      "post": {
+        "summary": "Batch Attendance Logging",
+        "description": "Lecturer submission of roll call attendance records for a specific course session.",
+        "responses": {
+          "200": { "description": "Attendance recorded" }
+        }
+      }
+    },
+    "/grades/publish": {
+      "post": {
+        "summary": "Multi-Tier Grade Publication",
+        "description": "Promotes submitted grades to PUBLISHED state with mandatory audit logging.",
+        "responses": {
+          "200": { "description": "Grades published successfully" }
+        }
+      }
+    }
+  }
+}

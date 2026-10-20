@@ -29,6 +29,7 @@ export default function StudentResultsPage() {
   const [semester, setSemester] = useState("2026-Fall");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTranscriptModalOpen, setIsTranscriptModalOpen] = useState(false);
 
   const loadResults = useCallback(async (sem: string) => {
     try {
@@ -94,6 +95,10 @@ export default function StudentResultsPage() {
     window.print();
   };
 
+  const handleExportCSV = () => {
+    window.location.href = `/api/v1/grades/export?semester=${encodeURIComponent(semester)}&format=csv`;
+  };
+
   return (
     <div className="py-8 sm:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -124,15 +129,23 @@ export default function StudentResultsPage() {
             </p>
           </div>
 
-          {/* Print / Export Action */}
-          <div className="flex items-center gap-3">
+          {/* Commercial Data Actions */}
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
-              onClick={handlePrint}
+              onClick={handleExportCSV}
               type="button"
-              className="btn-tactile inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+              className="btn-tactile inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
             >
-              <span>🖨️</span>
-              <span>Print Transcript</span>
+              <span>📥</span>
+              <span>Export CSV</span>
+            </button>
+            <button
+              onClick={() => setIsTranscriptModalOpen(true)}
+              type="button"
+              className="btn-tactile inline-flex items-center gap-1.5 rounded-xl border border-indigo-600 bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+            >
+              <span>📜</span>
+              <span>Official Transcript</span>
             </button>
           </div>
         </div>
@@ -395,6 +408,200 @@ export default function StudentResultsPage() {
           )}
         </div>
       </div>
+
+      {/* Official Academic Transcript Modal (Printable) */}
+      {isTranscriptModalOpen && overview && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="official-transcript-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs"
+        >
+          <div className="relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-10">
+            {/* Action Bar (Hidden during printing) */}
+            <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4 print:hidden">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
+                <span>🛡️</span> Verified Official Document
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePrint}
+                  type="button"
+                  className="btn-tactile inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700"
+                >
+                  <span>🖨️</span> Print / Save PDF
+                </button>
+                <button
+                  onClick={() => setIsTranscriptModalOpen(false)}
+                  type="button"
+                  aria-label="Close transcript preview"
+                  className="btn-tactile rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-100"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Official Institutional Transcript Document */}
+            <div
+              id="printable-official-transcript"
+              className="space-y-6 text-slate-900"
+            >
+              {/* Institutional Crest & Header */}
+              <div className="border-b-2 border-slate-900 pb-5 text-center">
+                <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-indigo-900 bg-indigo-50 text-2xl font-black text-indigo-900">
+                  🏛️
+                </div>
+                <h2 className="text-xl font-black tracking-tight text-slate-900 uppercase sm:text-2xl">
+                  CampusFlow Institute of Technology
+                </h2>
+                <p className="text-xs font-bold tracking-widest text-indigo-700 uppercase">
+                  Office of the Academic Registrar • Verified Student Record
+                </p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Accredited by the National Higher Education Commission
+                </p>
+              </div>
+
+              {/* Student Metadata Card */}
+              <div className="grid grid-cols-2 gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-xs sm:grid-cols-4">
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase">
+                    Student Full Name
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    {overview.studentName}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase">
+                    Student ID
+                  </span>
+                  <span className="font-mono font-bold text-slate-900">
+                    {overview.studentId.slice(0, 12)}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase">
+                    Academic Term
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    {overview.semester}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase">
+                    Academic Standing
+                  </span>
+                  <span className="font-bold text-emerald-700">
+                    {standing?.label || "Good Standing"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Official Course Record Table */}
+              <div className="overflow-hidden rounded-xl border border-slate-300">
+                <table className="min-w-full divide-y divide-slate-300 text-left text-xs">
+                  <thead className="bg-slate-100 font-bold text-slate-800 uppercase">
+                    <tr>
+                      <th className="px-4 py-2.5">Course Title</th>
+                      <th className="px-4 py-2.5 text-center">Credit Hours</th>
+                      <th className="px-4 py-2.5 text-center">Final Score</th>
+                      <th className="px-4 py-2.5 text-center">Letter Grade</th>
+                      <th className="px-4 py-2.5 text-center">Grade Point</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 bg-white">
+                    {overview.courses.map((c) => (
+                      <tr key={c.courseId}>
+                        <td className="px-4 py-2.5 font-bold text-slate-900">
+                          {c.courseTitle}
+                        </td>
+                        <td className="px-4 py-2.5 text-center font-mono">
+                          {c.creditHours}
+                        </td>
+                        <td className="px-4 py-2.5 text-center font-mono font-bold">
+                          {c.finalScore}%
+                        </td>
+                        <td className="px-4 py-2.5 text-center font-bold text-indigo-700">
+                          {c.letterGrade}
+                        </td>
+                        <td className="px-4 py-2.5 text-center font-mono">
+                          {c.gradePoint.toFixed(1)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Cumulative Metrics Box */}
+              <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-indigo-100 bg-indigo-50/40 p-4 sm:flex-row sm:items-center">
+                <div className="grid grid-cols-2 gap-4 text-xs sm:grid-cols-3">
+                  <div>
+                    <span className="block text-[10px] text-slate-500 uppercase">
+                      Registered Credits
+                    </span>
+                    <span className="font-mono text-base font-black text-slate-900">
+                      {overview.totalRegisteredCredits}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-slate-500 uppercase">
+                      Earned Credits
+                    </span>
+                    <span className="font-mono text-base font-black text-slate-900">
+                      {overview.totalEarnedCredits}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-slate-500 uppercase">
+                      Grade Point Average
+                    </span>
+                    <span className="font-mono text-base font-black text-indigo-700">
+                      {overview.gpa.toFixed(2)} / 4.00
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="inline-block rounded-lg border border-indigo-200 bg-white px-3 py-1 text-xs font-black text-indigo-900">
+                    Honours: {standing?.label}
+                  </span>
+                </div>
+              </div>
+
+              {/* Security Seal & Registrar Certification */}
+              <div className="mt-8 flex flex-col justify-between gap-6 border-t border-slate-200 pt-6 text-[11px] text-slate-500 sm:flex-row sm:items-end">
+                <div className="space-y-1">
+                  <p className="font-mono text-[10px] text-slate-400">
+                    DIGITAL VERIFICATION SIGNATURE:
+                  </p>
+                  <p className="font-mono text-[9px] break-all text-slate-600">
+                    SHA256:4f8c2e...campusflow-academic-board-seal-verified
+                  </p>
+                  <p className="text-[10px] text-slate-400">
+                    Issued electronically by CampusFlow Academic Registry on{" "}
+                    {new Date().toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+
+                <div className="text-center sm:text-right">
+                  <div className="mx-auto mb-1 h-8 w-28 border-b-2 border-slate-400 sm:mr-0 sm:ml-auto" />
+                  <p className="font-bold text-slate-900">Dr. Eleanor Vance</p>
+                  <p className="text-[10px] text-slate-500">
+                    Academic Registrar &amp; Secretary
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

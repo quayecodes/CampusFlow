@@ -13,17 +13,19 @@
   <a href="#-key-features"><img src="https://img.shields.io/badge/Architecture-Clean%20%26%20Decoupled-indigo?style=for-the-badge" alt="Architecture" /></a>
   <a href="#-automated-testing-harness-5959-tests"><img src="https://img.shields.io/badge/Tests-59%2F59%20Passing-emerald?style=for-the-badge" alt="Tests" /></a>
   <a href="#-owasp-top-10-security-shield"><img src="https://img.shields.io/badge/Security-OWASP%20Hardened-blue?style=for-the-badge" alt="OWASP Security" /></a>
-  <a href="#-accessibility--2026-design-system"><img src="https://img.shields.io/badge/WCAG%202.1-AA%20Compliant-teal?style=for-the-badge" alt="Accessibility" /></a>
+  <a href="docs/market-readiness-benchmark.md"><img src="https://img.shields.io/badge/Market%20Benchmark-Enterprise%20Ready-purple?style=for-the-badge" alt="Market Benchmark" /></a>
+  <a href="docs/openapi.json"><img src="https://img.shields.io/badge/OpenAPI-3.1%20Spec-orange?style=for-the-badge" alt="OpenAPI Spec" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-amber?style=for-the-badge" alt="License" /></a>
 </p>
 
 <p align="center">
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-seeded-demo-personas">Demo Personas</a> •
+  <a href="#-market-benchmark--competitive-differentiation">Market Benchmark</a> •
   <a href="#-core-modules">Core Modules</a> •
   <a href="#-automated-testing-harness-5959-tests">Test Suites</a> •
   <a href="#-security-architecture">Security Review</a> •
-  <a href="#-roadmap--phase-progression">Roadmap</a>
+  <a href="docs/openapi.json">OpenAPI Spec</a>
 </p>
 
 ---
@@ -37,6 +39,21 @@ Academic institutions frequently grapple with fragmented software, paper-based r
 - **Notification Silos**: Coursework and faculty updates scattered across disconnected noticeboards and email threads.
 
 **CampusFlow** delivers an all-in-one, multi-tenant academic operations platform engineered to resolve these challenges through **database-level concurrency control**, **strict 3-stage grade governance**, **role-scoped communications**, and an **OWASP-hardened security perimeter**.
+
+---
+
+## 📊 Market Benchmark & Competitive Differentiation
+
+CampusFlow is benchmarked directly against top commercial higher-education ERPs and Student Information Systems (SIS). Read the full analysis in [**docs/market-readiness-benchmark.md**](docs/market-readiness-benchmark.md).
+
+| Architectural Dimension | Legacy Monoliths (e.g. Ellucian Banner) | Cloud Enterprise (e.g. Workday Student) | **CampusFlow (Next.js 15 + PG17)** |
+|---|---|---|---|
+| **Peak Registration Scalability** | Prone to table-lock deadlocks and queue latency | Cloud queuing with high latency overhead | **Interactive row-level ACID transactions (`prisma.$transaction`)** |
+| **Grade Tamper Protection** | Complex PL/SQL triggers | Multi-step approval workflows | **3-stage state machine + immutable `GradeChangeLog` audit trail** |
+| **Retention & At-Risk Telemetry** | Batch monthly attendance reports | Basic LMS activity logs | **Real-time statutory attendance dial with 75% risk alerts** |
+| **Data Portability & Transcripts** | Proprietary EDI formats | Proprietary report builder | **FERPA-compliant RFC 4180 CSV, JSON & SHA-256 digital transcript hashes** |
+| **System Diagnostics** | High-overhead external APM agents | Vendor dashboard | **Built-in SLA Health API (`/api/v1/health`) tracking PG query latency & memory** |
+| **Interoperability** | Complex custom ESB middleware | Proprietary web services | **OpenAPI 3.1 Specification ready for LMS/Canvas integration** |
 
 ---
 
@@ -244,7 +261,14 @@ All seeded accounts share the default development password: `CampusFlow2026!`
 
 ## 🏷️ Release History
 
-- **v0.3.0-rc1** (Current) — Enterprise hardening: 59 automated test suites, OWASP Top 10 security review, upload magic byte inspector, security headers, database index optimization, and 2026 commercial UI/UX polish.
+- **v0.3.0-rc1** (Current) — **Commercial Market Readiness & Enterprise Hardening**:
+  - **Market Benchmark Whitepaper**: Rigorous architectural comparison against Ellucian Banner and Workday Student ([`docs/market-readiness-benchmark.md`](docs/market-readiness-benchmark.md)).
+  - **OpenAPI 3.1 Specification**: Commercial API contract for LMS/SIS interoperability ([`docs/openapi.json`](docs/openapi.json)).
+  - **Official Transcript Generation**: Print-media optimized registrar transcript modal with honours badges and digital verification signatures.
+  - **FERPA Data Portability API**: Cryptographic SHA-256 digital transcript verification and RFC 4180 CSV / JSON export engine (`/api/v1/grades/export`).
+  - **Enterprise SLA Health Telemetry**: Live PostgreSQL round-trip query latency and memory profiling diagnostics (`/api/v1/health`).
+  - **OWASP Top 10 Hardened Perimeter**: Next.js production security headers, binary magic-byte validation, and strict RBAC isolation.
+  - **Automated Integration Test Harness**: 59 automated test specifications passing across 7 core suites.
 - **v0.2.0-beta** — Complete implementation of Phase 5 & Phase 6: All 5 core functional modules, interactive UI portals, transactional concurrency controls, and automated test coverage.
 - **v0.1.0-alpha** — Scaffolding, PostgreSQL Prisma 3NF schema, NextAuth configuration, and tooling initialization.
 

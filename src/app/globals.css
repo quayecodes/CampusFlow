@@ -133,3 +133,25 @@
 .pulse-glow {
   animation: pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Print Optimization for Formal Academic Transcripts & Records */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-official-transcript,
+  #printable-official-transcript * {
+    visibility: visible;
+  }
+  #printable-official-transcript {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 24px;
+    background: white;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
